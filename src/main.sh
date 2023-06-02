@@ -115,10 +115,16 @@ dl_apkmirror() {
   req "$url" "$output"
 }
 get_apkmirror() {
-  local app_name=$1 
-  local app_category_link=$2 
-  local app_link=$3
-  local arch=$4
+    source./src/apkmirror.info
+    local app_name=$1
+    local arch=$2
+    local app_link=$(grep "^$app_name\=" "apkmirror.info" | cut -d "=" -f 2)
+    local app_category_link=$(grep "^$app_name-cat\=" "apkmirror.info" | cut -d "=" -f 2)
+
+    if [[ -z $app_link || -z $app_category_link ]]; then
+        printf "\033[0;31mCannot find links for %s\033[0m\n" "$app_name"
+        exit 1
+    fi
   if [[ -z $arch ]]; then
     printf "\033[1;33mDownloading \033[0;31m\"%s\"\033[0m\n" "$app_name"
   elif [[ $arch == "arm64-v8a" ]]; then
