@@ -26,11 +26,11 @@ rm -f ./*.txt
 dl_gh "inotia00" "revanced-patches revanced-cli revanced-integrations" "latest"
 
 # Patch YouTube Extended
-get_patches_key "youtube"
-get_ver "hide-general-ads" "com.google.android.youtube"
-get_apkmirror "youtube" \"https://www.apkmirror.com/uploads/?appcategory=youtube\" "https://www.apkmirror.com/apk/google-inc/youtube/youtube"
+#get_patches_key "youtube"
+#get_ver "hide-general-ads" "com.google.android.youtube"
+#get_apkmirror "youtube" \"https://www.apkmirror.com/uploads/?appcategory=youtube\" "https://www.apkmirror.com/apk/google-inc/youtube/youtube"
 #get_uptodown "youtube" "youtube"
-patch "youtube" "yt-rve-v$version"
+#patch "youtube" "yt-rve-v$version"
 
 # Patch YouTube Music Extended 
 get_patches_key "ytmusic"
