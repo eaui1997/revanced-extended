@@ -1,7 +1,10 @@
-declare -A apps=(
-  ["youtube"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=youtube","app_link":"https://www.apkmirror.com/apk/google-inc/youtube/youtube"}'
-  ["youtube-music"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=youtube-music","app_link":"https://www.apkmirror.com/apk/google-inc/youtube-music/youtube-music"}'
-  ["tiktok"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=tik-tok-including-musical-ly","app_link":"https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/tik-tok-including-musical-ly"}'
-  ["twitch"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=twitch","app_link":"https://www.apkmirror.com/apk/twitch-interactive-inc/twitch/twitch"}'
-  ["messenger"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=messenger","app_link":"https://www.apkmirror.com/apk/facebook-2/messenger/messenger"}'
-)
+youtube=https://www.apkmirror.com/apk/google-inc/youtube/youtube/
+youtube-cat=https://www.apkmirror.com/uploads/?appcategory=youtube
+youtube-music=https://www.apkmirror.com/apk/google-inc/youtube-music/youtube-music/
+youtube-music-cat=https://www.apkmirror.com/uploads/?appcategory=youtube-music
+twitch=https://www.apkmirror.com/apk/twitch-interactive-inc/twitch/twitch/
+twitch-cat=https://www.apkmirror.com/uploads/?appcategory=twitch
+messenger=https://www.apkmirror.com/apk/facebook-2/messenger/messenger/
+messenger-cat=https://www.apkmirror.com/uploads/?appcategory=messenger
+tiktok=https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/tik-tok-including-musical-ly/
+tiktok-cat=https://www.apkmirror.com/uploads/?appcategory=tik-tok-including-musical-ly
