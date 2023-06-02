@@ -34,7 +34,7 @@ dl_gh "inotia00" "revanced-patches revanced-cli revanced-integrations" "latest"
 
 # Patch YouTube Music Extended 
 get_patches_key "ytmusic"
-get_apkmirror "youtube-music" "https://www.apkmirror.com/uploads/?appcategory=youtube-music" "https://www.apkmirror.com/apk/google-inc/youtube-music/youtube-music" "arm64-v8a"
+get_apkmirror "youtube-music" \"https://www.apkmirror.com/uploads/?appcategory=youtube-music\" "https://www.apkmirror.com/apk/google-inc/youtube-music/youtube-music" "arm64-v8a"
 #get_uptodown "youtube-music" "youtube-music" 
 patch "youtube-music" "yt-music-v$version"
 
