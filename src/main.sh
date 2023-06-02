@@ -115,10 +115,12 @@ dl_apkmirror() {
   req "$url" "$output"
 }
 get_apkmirror() {
-  local app_name=$1 
-  local app_category=$2 
-  local app_link_tail=$3
-  local arch=$4
+  local app_name="$1"
+  local arch="$2"
+  source "apkmirror.info"
+  local app_info="${apps["$app_name"]}"
+  local app_url="$(echo "$app_info" | jq '.app_link' | tr -d \")"
+  local cat_url="$(echo "$app_info" | jq '.category_link' | tr -d \")"
   if [[ -z $arch ]]; then
     printf "\033[1;33mDownloading \033[0;31m\"%s\"\033[0m\n" "$app_name"
   elif [[ $arch == "arm64-v8a" ]]; then
