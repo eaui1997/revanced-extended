@@ -137,7 +137,7 @@ get_apkmirror() {
     printf "\033[0;31mArchitecture not exactly!!! Please check\033[0m\n"
     exit 1
   fi 
-  export version=${version:-$(get_apkmirror_vers "$app_categlory_link" | get_largest_ver)}
+  export version=${version:-$(get_apkmirror_vers $app_categlory_link | get_largest_ver)}
   printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version"
   local base_apk="$app_name.apk"
   if [[ -z $arch ]]; then
