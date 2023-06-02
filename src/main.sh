@@ -116,15 +116,16 @@ dl_apkmirror() {
 }
 get_apkmirror() {
     source ./src/apkmirror.info
-    local app_name=$1
-    local arch=$2
-    local app_link=$(grep "^$app_name\=" "apkmirror.info" | cut -d "=" -f 2)
-    local app_category_link=$(grep "^$app_name-cat\=" "apkmirror.info" | cut -d "=" -f 2)
+    local app_name=$1 
+  local arch=$2
 
-    if [[ -z $app_link || -z $app_category_link ]]; then
-        printf "\033[0;31mCannot find links for %s\033[0m\n" "$app_name"
-        exit 1
-    fi
+  if [[ -z ${apps[$app_name]} ]]; then
+    printf "\033[0;31mInvalid app name\033[0m\n"
+    exit 1
+  fi
+
+  local app_categories=$(echo ${apps[$app_name]} | jq -r '.category_link')
+  local app_link=$(echo ${apps[$app_name]} | jq -r '.app_link')
   if [[ -z $arch ]]; then
     printf "\033[1;33mDownloading \033[0;31m\"%s\"\033[0m\n" "$app_name"
   elif [[ $arch == "arm64-v8a" ]]; then
@@ -143,7 +144,7 @@ get_apkmirror() {
     printf "\033[0;31mArchitecture not exactly!!! Please check\033[0m\n"
     exit 1
   fi 
-  export version=${version:-$(get_apkmirror_vers $app_category_link | get_largest_ver)}
+  export version=${version:-$(get_apkmirror_vers $app_categories | get_largest_ver)}
   printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version"
   local base_apk="$app_name.apk"
   if [[ -z $arch ]]; then
