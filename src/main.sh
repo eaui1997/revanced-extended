@@ -115,7 +115,7 @@ dl_apkmirror() {
   req "$url" "$output"
 }
 get_apkmirror() {
-    source./src/apkmirror.info
+    source ./src/apkmirror.info
     local app_name=$1
     local arch=$2
     local app_link=$(grep "^$app_name\=" "apkmirror.info" | cut -d "=" -f 2)
