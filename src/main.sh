@@ -118,15 +118,12 @@ get_apkmirror() {
   source ./src/apkmirror.info
   local app_name=$1 
   local arch=$2
-
   if [[ -z ${apps[$app_name]} ]]; then
     printf "\033[0;31mInvalid app name\033[0m\n"
     exit 1
   fi
-
   local app_categories=$(echo ${apps[$app_name]} | jq -r '.category_link')
-  local app_link=$(echo ${apps[$app_name]} | jq -r '.app_link')
-  
+  local app_link=$(echo ${apps[$app_name]} | jq -r '.app_link')  
   if [[ -z $arch ]]; then
     printf "\033[1;33mDownloading \033[0;31m\"%s\"\033[0m\n" "$app_name"
   elif [[ $arch == "arm64-v8a" ]]; then
