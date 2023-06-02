@@ -254,6 +254,9 @@ patch() {
     printf "\033[0;36m->%s\033[0m\n" "$base_apk"
     printf "\033[0;32mINCLUDE PATCHES :%s\033[0m\n\033[0;31mEXCLUDE PATCHES :%s\033[0m\n" "${include_patches[*]}" "${exclude_patches[*]}"
     java -jar "$cli_jar" \
+      --rip-lib x86 \
+      --rip-lib x86_64 \
+      --rip-lib armeabi-v7a \
       -m "$integrations_apk" \
       -b "$patches_jar" \
       -a "$base_apk" \
