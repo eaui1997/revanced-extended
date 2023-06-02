@@ -115,9 +115,10 @@ dl_apkmirror() {
   req "$url" "$output"
 }
 get_apkmirror() {
-  local app_name="$1"
-  local arch="$2"
-  source "apkmirror.info"
+  local app_name=$1 
+  local app_category_link=$2 
+  local app_link=$3
+  local arch=$4
   if [[ -z $arch ]]; then
     printf "\033[1;33mDownloading \033[0;31m\"%s\"\033[0m\n" "$app_name"
   elif [[ $arch == "arm64-v8a" ]]; then
@@ -138,7 +139,7 @@ get_apkmirror() {
   fi 
   export version="$version"
   if [[ -z $version ]]; then
-    version=${version:-$(get_apkmirror_vers "$app_category_link" | get_largest_ver)}
+    version=${version:-$(get_apkmirror_vers "$app_categlory_link" | get_largest_ver)}
   fi
   printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version"
   local base_apk="$app_name.apk"
