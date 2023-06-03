@@ -115,7 +115,7 @@ dl_apkmirror() {
   req "$url" "$output"
 }
 get_apkmirror() {
-  source ./src/apkmirror.info
+  eval "$(cat ./src/apkmirror.info)"
   local app_name=$1 
   local arch=$2
   if [[ -z ${apps[$app_name]} ]]; then
@@ -185,7 +185,7 @@ dl_uptodown() {
     req "$url" "$output"
 }
 get_uptodown() {
-    source ./src/uptodown.info
+    eval "$(cat ./src/uptodown.info)"
     local app_name=$1 
     if [[ -z ${apps[$app_name]} ]]; then
        printf "\033[0;31mInvalid app name\033[0m\n"
