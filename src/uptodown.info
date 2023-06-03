@@ -1,1 +1,9 @@
-
+#!/bin/bash
+declare -A apps=(
+  ["youtube"]='{"app_link":"https://youtube.en.uptodown.com/android"}'
+  ["youtube-music"]='{"app_link":"https://youtube-music.en.uptodown.com/android"}'
+  ["tiktok-asia"]='{"app_link":"https://tik-tok.en.uptodown.com/android"}'
+  ["tiktok-global"]='{"app_link":"https://tiktok.en.uptodown.com/android"}'
+  ["twitch"]='{"app_link":"https://twitch.en.uptodown.com/android"}'
+  ["messenger"]='{"app_link":"https://facebook-messenger.en.uptodown.com/android"}'
+)
