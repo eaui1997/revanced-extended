@@ -192,7 +192,7 @@ get_uptodown() {
        exit 1
     fi
     local applink=$(echo ${apps[$app_name]} | jq -r '.app_link')
-    printf "\033[1;33mDownloading \033[0;31m\"%s\"\033[0m\n" "$apk_name"
+    printf "\033[1;33mDownloading \033[0;31m\"%s\"\033[0m\n" "$app_name"
     export version="$version"
     local out_name=$(printf '%s' "$app_name" | tr '.' '_' | tr '[:upper:]' '[:lower:]' && printf '%s' ".apk")
     local uptwod_resp
