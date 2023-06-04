@@ -1,8 +1,5 @@
 #!/bin/bash
 
-#:::::::::::::::::
-#Download Github::
-#:::::::::::::::::
 dl_gh() {
     local user=$1
     local repos=$2
@@ -39,9 +36,6 @@ dl_gh() {
     return 0
 }
 
-#:::::::::::::::::::::::::::::::::::::::::::::
-#Prepare exclude patches and include patches::
-#:::::::::::::::::::::::::::::::::::::::::::::
 get_patches_key() {
     local folder="$1"
     local exclude_file="patches/${folder}/exclude-patches"
@@ -86,26 +80,22 @@ get_patches_key() {
     return 0
 }
 
-#::::::::::::::
-#Download APK::
-#::::::::::::::
 req() {  
     wget -nv -O "$2" -U "Mozilla/5.0 (X11; Linux x86_64; rv:111.0) Gecko/20100101 Firefox/111.0" "$1" 
 } 
 
-#:::::::::::
-#Apkmirror::
-#:::::::::::
 get_apkmirror_vers() {  
     req "$1" - | sed -n 's;.*Version:</span><span class="infoSlide-value">\(.*\) </span>.*;\1;p' 
 } 
- get_largest_ver() { 
+
+get_largest_ver() { 
    local max=0 
    while read -r v || [ -n "$v" ]; do                    
          if [[ ${v//[!0-9]/} -gt ${max//[!0-9]/} ]]; then max=$v; fi 
            done 
                if [[ $max = 0 ]]; then echo ""; else echo "$max"; fi  
 }
+
 dl_apkmirror() {
   local url=$1 regexp=$2 output=$3
   url="https://www.apkmirror.com$(req "$url" - | tr '\n' ' ' | sed -n "s/href=\"/@/g; s;.*${regexp}.*;\1;p")"
@@ -114,6 +104,7 @@ dl_apkmirror() {
   url="https://www.apkmirror.com$(req "$url" - | tr '\n' ' ' | sed -n 's;.*href="\(.*key=[^"]*\)">.*;\1;p')"
   req "$url" "$output"
 }
+
 get_apkmirror() {
   eval "$(cat ./src/apkmirror.info)"
   local app_name=$1 
@@ -168,12 +159,10 @@ get_apkmirror() {
   fi
 }
 
-#:::::::::::
-#Uptodown ::
-#:::::::::::
 get_uptodown_resp() {
     req "${1}/versions" -
 }
+
 get_uptodown_vers() {
     sed -n 's;.*version">\(.*\)</span>$;\1;p' <<< "$1"
 }
@@ -213,11 +202,15 @@ get_uptodown() {
 #Get largest supported version::
 #:::::::::::::::::::::::::::::::
 get_ver() {
+    eval "$(cat ./src/version.info)"
+    local app_name=$1 
+    local patch_name=$(echo ${versions[$app_name]} | jq -r '.patch')
+    local pkg_name=$(echo ${versions[$app_name]} | jq -r '.package')
     if [[ ! -f patches.json ]]; then
        printf "\033[0;31mError: patches.json file not found.\033[0m\n"
        return 1
      else
-       export version=$(jq -r --arg patch_name "$1" --arg pkg_name "$2" '
+       export version=$(jq -r --arg patch_name "$patch_name" --arg pkg_name "$pkg_name" '
        .[]
        | select(.name == $patch_name)
        | .compatiblePackages[]
