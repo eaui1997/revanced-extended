@@ -1,27 +1,51 @@
 #!/bin/bash
 declare -A apps=(
+  # YouTube 
   ["youtube"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=youtube","app_link":"https://www.apkmirror.com/apk/google-inc/youtube/youtube"}'
+  # YouTube Music 
   ["youtube-music"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=youtube-music","app_link":"https://www.apkmirror.com/apk/google-inc/youtube-music/youtube-music"}'
+  # Tiktok 
   ["tiktok"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=tik-tok-including-musical-ly","app_link":"https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/tik-tok-including-musical-ly"}'
+  # Twitch 
   ["twitch"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=twitch","app_link":"https://www.apkmirror.com/apk/twitch-interactive-inc/twitch/twitch"}'
+  # Messenger 
   ["messenger"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=messenger","app_link":"https://www.apkmirror.com/apk/facebook-2/messenger/messenger"}'
+  # Twitter 
   ["twitter"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=twitter","app_link":"https://www.apkmirror.com/apk/x-corp/twitter/twitter"}'
+  # Reddit
   ["reddit"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=reddit","app_link":"https://www.apkmirror.com/apk/redditinc/reddit/reddit"}'
-  ["sync-for-reddit"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=sync-for-reddit","app_link":"https://www.apkmirror.com/apk/red-apps-ltd/sync-for-reddit/sync-for-reddit"}'
+  # Sync for Reddit 
+  ["sync-for-reddit"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=sync-for-reddit","app_link":"https://www.apkmirror, ,sz.com/apk/red-apps-ltd/sync-for-reddit/sync-for-reddit"}'
+  # Instagram 
   ["instagram"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=instagram-instagram","app_link":"https://www.apkmirror.com/apk/instagram/instagram-instagram/instagram-instagram"}'
+  # Citra Emulator 
   ["citra"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=citra-emulator","app_link":"https://www.apkmirror.com/apk/citra-emulator/citra-emulator/citra-emulator"}'
+  # Backdrops Wallpapers 
   ["backdrops-wallpapers"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=backdrops-wallpapers","app_link":"https://www.apkmirror.com/apk/backdrops/backdrops-wallpapers/backdrops-wallpapers"}'
+  # Warn Metter
   ["warnwetter"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=warnwetter","app_link":"https://www.apkmirror.com/apk/deutscher-wetterdienst/warnwetter/warnwetter"}'
+  # Irplus Infrared Remote
   ["irplus"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=irplus-infrared-remote","app_link":"https://www.apkmirror.com/apk/binarymode/irplus-infrared-remote/irplus-infrared-remote"}'
+  # NetGuard Firewall 
   ["netguard"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=netguard-no-root-firewall","app_link":"https://www.apkmirror.com/apk/marcel-bokhorst/netguard-no-root-firewall/netguard-no-root-firewall"}'
+  # Yuka Food Scan
   ["yuka"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=yuka-food-cosmetic-scan","app_link":"https://www.apkmirror.com/apk/yuka-apps/yuka-food-cosmetic-scan/yuka-food-cosmetic-scan"}'
+  # Nova Launcher 
   ["nova"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=nova-launcher","app_link":"https://www.apkmirror.com/apk/teslacoil-software/nova-launcher/nova-launcher"}'
+  # Icon Pack Studio 
   ["icon-pack-studio"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=icon-pack-studio","app_link":"https://www.apkmirror.com/apk/smart-launcher-team/icon-pack-studio/icon-pack-studio"}'
+  # Trakt
   ["trakt"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=trakt","app_link":"https://www.apkmirror.com/apk/trakt/trakt/trakt"}'
+  # Windy.app
   ["windy"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=windy-wind-weather-forecast","app_link":"https://www.apkmirror.com/apk/windy-weather-world-inc/windy-wind-weather-forecast/windy-wind-weather-forecast"}'
+  # Meme Generator 
   ["meme-generator"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=meme-generator-free","app_link":"https://www.apkmirror.com/apk/zombodroid/meme-generator-free/meme-generator-free"}'
+  # CandyLink VPN
   ["candylinkvpn"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=candylink-vpn","app_link":"https://www.apkmirror.com/apk/liondev-io/candylink-vpn/candylink-vpn"}'
+  # VSCO 
   ["vsco"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=vsco-cam","app_link":"https://www.apkmirror.com/apk/vsco/vsco-cam/vsco-cam"}'
+  # Ticktick Todo list
   ["ticktick"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=ticktick-to-do-list-with-reminder-day-planner","app_link":"https://www.apkmirror.com/apk/appest-inc/ticktick-to-do-list-with-reminder-day-planner/ticktick-to-do-list-with-reminder-day-planner"}'
+  # Tasker
   ["tasker"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=tasker","app_link":"https://www.apkmirror.com/apk/joaomgcd/tasker/tasker"}'
 )
