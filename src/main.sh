@@ -198,9 +198,6 @@ get_uptodown() {
     fi
 }
 
-#:::::::::::::::::::::::::::::::
-#Get largest supported version::
-#:::::::::::::::::::::::::::::::
 get_ver() {
     eval "$(cat ./src/version.info)"
     local app_name=$1 
@@ -225,9 +222,6 @@ get_ver() {
     return 0
 }
 
-#:::::::::::
-#Patch APK::
-#:::::::::::
 patch() {
   local apk_name=$1
   local apk_out=$2
