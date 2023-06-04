@@ -1,0 +1,19 @@
+#!/bin/bash
+declare -A versions=(
+  # Youtube Revanced
+  ["youtube-rv"]='{"patch":"video-ads","package":"com.google.android.youtube"}'
+  # Youtube Revanced Extended 
+  ["youtube-rve"]='{"patch":"hide-general-ads","package":"com.google.android.youtube"}'
+  # Youtube Music Revanced
+  ["youtube-music-rv"]='{"patch":"hide-get-premium","package":"com.google.android.apps.youtube.music"}'
+  # Twitch 
+  ["twitch"]='{"patch":"block-video-ads","package":"tv.twitch.android.app"}'
+  # Twitter 
+  ["twitter"]='{"patch":"hide-views-stats","package":"com.twitter.android"}'
+  # Backdrops Wallpapers
+  ["backdrops"]='{"patch":"pro-unlock","package":"com.backdrops.wallpapers"}'
+  # Meme Generator 
+  ["meme-generator"]='{"patch":"pro-unlock","package":"com.zombodroid.MemeGenerator"}'
+  # My Expenses 
+  ["expenses"]='{"patch":"pro-unlock","package":"org.totschnig.myexpenses"}'
+)
