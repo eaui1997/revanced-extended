@@ -33,7 +33,7 @@ jobs:
         with:
           files: |
             ./build/*
-            revanced-version.txt
+            revanced-extended-version.txt
           name: Revanced Extended
           tag_name: latest
           body_path: ${{ github.workspace }}-CHANGELOG.txt
