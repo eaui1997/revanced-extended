@@ -5,32 +5,36 @@ dl_gh() {
     local repos=$2
     local tag=$3
     if [ -z "$user" ] || [ -z "$repos" ] || [ -z "$tag" ]; then
-        printf '%b\n' '\033[0;31mUsage: dl_gh user repo tag\033[0m' 
+        logger.error 'Usage: dl_gh user repo tag'
         return 1 
     fi 
     trap 'rm -f ${#downloaded_files[@]}; exit 1' INT TERM ERR
-    for repo in $repos; do
-        printf "\033[1;33mGetting asset URLs for \"%s\"...\033[0m\n" "$repo"
+    repo in $repos; do
+        logger.info "Getting asset for \"$repo\"..."
         asset_urls=$(wget -qO- "https://api.github.com/repos/$user/$repo/releases/$tag" \
                     | jq -r '.assets[] | "\(.browser_download_url) \(.name)"')        
         if [ -z "$asset_urls" ]; then
-            printf "\033[0;31mNo assets found for %s\033[0m\n" "$repo"
-            return 1
-        fi     
-        downloaded_files=()
+            logger.error "No assets found for $repo"
+            return1
+        fi        downloaded_files()
         while read -r url name; do
-            printf "\033[0;34m-> \033[0;36m\"%s\"\033[0;34m | \033[0;36m\"%s\"\033[0m\n" "$name" "$url"
+            logger.info "-> \"$name\" | \"$url\""
             while ! wget -q -O "$name" "$url"; do
-                sleep 1
+                 sleep 1
             done
-            printf "\033[0;32m-> \033[0;36m\"%s\"\033[0m [\033[0;32m\"$(date +%T)\"\033[0m] [\033[0;32mDONE\033[0m]\n" "$name"
+            if [ $? -ne 0 ]
+            then
+                logger.error "Failed to download $name from $url"
+            else
+                logger.success " downloaded $name from $url"
+           
             downloaded_files+=("$name")
         done <<< "$asset_urls"
         if [ ${#downloaded_files[@]} -gt 0 ]; then
-            printf "\033[0;32mFinished download assets for \033[1;33m\"%s\":\033[0m\n" "$repo"
+            logger.success "Finished download assets for \"$repo\":"
             for file in ${downloaded_files[@]}; do
-                printf " -> \033[0;34m\"%s\"\033[0m\n" "$file"
-            done
+                logger.info "-> \"$file\""
+           
         fi
     done
     return 0
