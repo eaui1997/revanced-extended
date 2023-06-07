@@ -199,6 +199,13 @@ get_ver() {
 patch() {
   local apk_name=$1
   local apk_out=$2
+  local arch=$3
+  declare -A arch_map
+    arch_map["arm64-v8a"]="--rip-lib x86 --rip-lib x86_64 --rip-lib armeabi-v7a"
+    arch_map["armeabi-v7a"]="--rip-lib x86 --rip-lib x86_64 --rip-lib arm64-v8a"
+    arch_map["x86"]="--rip-lib x86_64 --rip-lib arm64-v8a --rip-lib armeabi-v7a"
+    arch_map["x86_64"]="--rip-lib x86 --rip-lib armeabi-v7a --rip-lib arm64-v8a"
+    arch_map["arm"]="--rip-lib x86 --rip-lib x86_64"
   printf "\033[1;33mStarting patch \033[0;31m\"%s\"\033[1;33m...\033[0m\n" "$apk_out"
   local base_apk=$(find -name "$apk_name.apk" -print -quit)
   [[ -f "$base_apk" ]] || { printf "\033[0;31mError: APK file not found\033[0m\n"; exit 1; }
@@ -221,6 +228,7 @@ patch() {
       -a "$base_apk" \
       ${exclude_patches[@]} \
       ${include_patches[@]} \
+      ${arch_map[$arch]} \
       --keystore=./src/ks.keystore \
       -o "build/$apk_out.apk"
   printf "\033[0;32mPatch \033[0;31m\"%s\" \033[0;32mis finished!\033[0m\n" "$apk_out"
