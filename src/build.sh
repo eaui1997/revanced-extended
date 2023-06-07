@@ -28,14 +28,14 @@ dl_gh "inotia00" "revanced-patches revanced-cli revanced-integrations" "latest"
 # Patch YouTube Extended
 get_patches_key "youtube"
 get_ver "youtube-rve"
-#get_apkmirror "youtube"
-get_uptodown "youtube"
+get_apkmirror "youtube"
+#get_uptodown "youtube"
 patch "youtube" "yt-rve-v$version"
 
 # Patch YouTube Music Extended 
 get_patches_key "ytmusic"
-#get_apkmirror "youtube-music" "arm64-v8a"
-get_uptodown "youtube-music"
+get_apkmirror "youtube-music" "arm64-v8a"
+#get_uptodown "youtube-music"
 patch "youtube-music" "yt-music-v$version"
 
 ls revanced-patches*.jar >> revanced-extended-version.txt
