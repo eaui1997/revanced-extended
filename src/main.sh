@@ -113,11 +113,11 @@ get_apkmirror() {
   [[ -n $arch ]] && printf " (%s)" "$arch"
   printf "\033[0m\n"
   declare -A url_regexp_map
-  url_regexp_map["arm64-v8a"]='arm64-v8a</div>[^@]*@\([^"]*\)'
-  url_regexp_map["armeabi-v7a"]='armeabi-v7a</div>[^@]*@\([^"]*\)'
-  url_regexp_map["x86"]='x86</div>[^@]*@\([^"]*\)'
-  url_regexp_map["x86_64"]='x86_64</div>[^@]*@\([^"]*\)'
-  url_regexp_map["universal"]='APK</span>[^@]*@\([^#]*\)'
+    url_regexp_map["arm64-v8a"]='arm64-v8a</div>[^@]*@\([^"]*\)'
+    url_regexp_map["armeabi-v7a"]='armeabi-v7a</div>[^@]*@\([^"]*\)'
+    url_regexp_map["x86"]='x86</div>[^@]*@\([^"]*\)'
+    url_regexp_map["x86_64"]='x86_64</div>[^@]*@\([^"]*\)'
+    url_regexp_map["universal"]='APK</span>[^@]*@\([^#]*\)'
   if [[ -z $arch ]]; then
     arch="universal"
   fi
