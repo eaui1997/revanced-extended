@@ -123,7 +123,9 @@ get_apkmirror() {
     armeabi-v7a) url_regexp='armeabi-v7a</div>[^@]*@\([^"]*\)' ;;
     x86) url_regexp='x86</div>[^@]*@\([^"]*\)' ;;
     x86_64) url_regexp='x86_64</div>[^@]*@\([^"]*\)' ;;
-    *) url_regexp='APK</span>[^@]*@\([^#]*\)' ;;
+    "") url_regexp='APK</span>[^@]*@\([^#]*\)' ;;
+    *) printf "\033[0;31mArchitecture not exactly!!! Please check\033[0m\n"
+       exit 1 ;;
   esac 
   export version=${version:-$(get_apkmirror_vers $app_categories | get_largest_ver)}
   printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version"
@@ -132,6 +134,7 @@ get_apkmirror() {
 			"$url_regexp" \
 			"$base_apk")
 }
+
 
 get_uptodown_resp() {
     req "${1}/versions" -
