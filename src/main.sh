@@ -41,26 +41,20 @@ get_patches_key() {
     local exclude_file="patches/${folder}/exclude-patches"
     local include_file="patches/${folder}/include-patches"
     local word
-    if [ ! -d "${exclude_file%/*}" ]; then
-        printf "\033[0;31mFolder not found: \"%s\"\n\033[0m" "${exclude_file%/*}"
-        return 1
-    fi
-    if [ ! -f "$exclude_file" ]; then
-        printf "\033[0;31mFile not found: \"%s\"\n\033[0m" "$exclude_file"
-        return 1
-    fi
-    if [ ! -f "$include_file" ]; then
-        printf "\033[0;31mFile not found: \"%s\"\n\033[0m" "$include_file"
-        return 1
-    fi
-    if [ ! -r "$exclude_file" ]; then
-        printf "\033[0;31mCannot read file: \"%s\"\n\033[0m" "$exclude_file"
-        return 1
-    fi
-    if [ ! -r "$include_file" ]; then
-        printf "\033[0;31mCannot read file: \"%s\"\n\033[0m" "$include_file"
-        return 1
-    fi
+    for file in "$exclude_file" "$include_file"; do
+        if [ ! -d "${file%/*}" ]; then
+            printf "\033[0;31mFolder not found: \"%s\"\n\033[0m" "${file%/*}"
+            return 1
+        fi
+        if [ ! -f "$file" ]; then
+            printf "\033[0;31mFile not found: \"%s\"\n\033[0m" "$file"
+            return 1
+        fi
+        if [ ! -r "$file" ]; then
+            printf "\033[0;31mCannot read file: \"%s\"\n\033[0m" "$file"
+            return 1
+        fi
+    done
     while IFS= read -r word; do
         if [[ -n "$word" ]]; then
             exclude_patches+=("-e" "$word")
@@ -113,7 +107,7 @@ get_apkmirror() {
     printf "\033[0;31mInvalid app name\033[0m\n"
     exit 1
   fi
-  local app_categories=$(echo ${apps[$app_name]} | jq -r '.category_link')
+  local app_category=$(echo ${apps[$app_name]} | jq -r '.category_link')
   local app_link=$(echo ${apps[$app_name]} | jq -r '.app_link')  
   printf "\033[1;33mDownloading \033[0;31m\"%s\"" "$app_name"
   [[ -n $arch ]] && printf " (%s)" "$arch"
@@ -127,7 +121,7 @@ get_apkmirror() {
     *) printf "\033[0;31mArchitecture not exactly!!! Please check\033[0m\n"
        exit 1 ;;
   esac 
-  export version=${version:-$(get_apkmirror_vers $app_categories | get_largest_ver)}
+  export version=${version:-$(get_apkmirror_vers $app_category | get_largest_ver)}
   printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version"
   local base_apk="$app_name.apk"
   local dl_url=$(dl_apkmirror "$app_link-${version//./-}-release/" \
