@@ -107,28 +107,31 @@ get_apkmirror() {
     printf "\033[0;31mInvalid app name\033[0m\n"
     exit 1
   fi
-  local app_category=$(echo ${apps[$app_name]} | jq -r '.category_link')
+  local app_categories=$(echo ${apps[$app_name]} | jq -r '.category_link')
   local app_link=$(echo ${apps[$app_name]} | jq -r '.app_link')  
   printf "\033[1;33mDownloading \033[0;31m\"%s\"" "$app_name"
   [[ -n $arch ]] && printf " (%s)" "$arch"
   printf "\033[0m\n"
-  case $arch in
-    arm64-v8a) url_regexp='arm64-v8a</div>[^@]*@\([^"]*\)' ;;
-    armeabi-v7a) url_regexp='armeabi-v7a</div>[^@]*@\([^"]*\)' ;;
-    x86) url_regexp='x86</div>[^@]*@\([^"]*\)' ;;
-    x86_64) url_regexp='x86_64</div>[^@]*@\([^"]*\)' ;;
-    "") url_regexp='APK</span>[^@]*@\([^#]*\)' ;;
-    *) printf "\033[0;31mArchitecture not exactly!!! Please check\033[0m\n"
-       exit 1 ;;
-  esac 
-  export version=${version:-$(get_apkmirror_vers $app_category | get_largest_ver)}
+  declare -A url_regexp_map
+  url_regexp_map["arm64-v8a"]='arm64-v8a</div>[^@]*@\([^"]*\)'
+  url_regexp_map["armeabi-v7a"]='armeabi-v7a</div>[^@]*@\([^"]*\)'
+  url_regexp_map["x86"]='x86</div>[^@]*@\([^"]*\)'
+  url_regexp_map["x86_64"]='x86_64</div>[^@]*@\([^"]*\)'
+  url_regexp_map["universal"]='APK</span>[^@]*@\([^#]*\)'
+  if [[ -z $arch ]]; then
+    arch="universal"
+  fi
+  if [[ -z ${url_regexp_map[$arch]} ]]; then
+    printf "\033[0;31mArchitecture not exactly!!! Please check\033[0m\n"
+    exit 1
+  fi 
+  export version=${version:-$(get_apkmirror_vers $app_categories | get_largest_ver)}
   printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version"
   local base_apk="$app_name.apk"
   local dl_url=$(dl_apkmirror "$app_link-${version//./-}-release/" \
-			"$url_regexp" \
+			"${url_regexp_map[$arch]}" \
 			"$base_apk")
 }
-
 
 get_uptodown_resp() {
     req "${1}/versions" -
