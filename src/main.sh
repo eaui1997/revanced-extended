@@ -123,6 +123,7 @@ get_apkmirror() {
     armeabi-v7a) url_regexp='armeabi-v7a</div>[^@]*@\([^"]*\)' ;;
     x86) url_regexp='x86</div>[^@]*@\([^"]*\)' ;;
     x86_64) url_regexp='x86_64</div>[^@]*@\([^"]*\)' ;;
+    universal) url_regexp='APK</span>[^@]*@\([^#]*\)' ;;
     *) printf "\033[0;31mArchitecture not exactly!!! Please check\033[0m\n"
        exit 1 ;;
   esac 
@@ -133,6 +134,7 @@ get_apkmirror() {
 			"$url_regexp" \
 			"$base_apk")
 }
+
 
 
 get_uptodown_resp() {
