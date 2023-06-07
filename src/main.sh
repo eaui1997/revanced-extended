@@ -115,49 +115,25 @@ get_apkmirror() {
   fi
   local app_categories=$(echo ${apps[$app_name]} | jq -r '.category_link')
   local app_link=$(echo ${apps[$app_name]} | jq -r '.app_link')  
-  if [[ -z $arch ]]; then
-    printf "\033[1;33mDownloading \033[0;31m\"%s\"\033[0m\n" "$app_name"
-  elif [[ $arch == "arm64-v8a" ]]; then
-    printf "\033[1;33mDownloading \033[0;31m\"%s\" (arm64-v8a)\033[0m\n" "$app_name"
-    url_regexp='arm64-v8a</div>[^@]*@\([^"]*\)'
-  elif [[ $arch == "armeabi-v7a" ]]; then
-    printf "\033[1;33mDownloading \033[0;31m\"%s\" (armeabi-v7a)\033[0m\n" "$app_name"
-    url_regexp='armeabi-v7a</div>[^@]*@\([^"]*\)'
-  elif [[ $arch == "x86" ]]; then
-    printf "\033[1;33mDownloading \033[0;31m\"%s\" (x86)\033[0m\n" "$app_name"
-    url_regexp='x86</div>[^@]*@\([^"]*\)'
-  elif [[ $arch == "x86_64" ]]; then
-    printf "\033[1;33mDownloading \033[0;31m\"%s\" (x86_64)\033[0m\n" "$app_name"
-    url_regexp='x86_64</div>[^@]*@\([^"]*\)'
-  else
-    printf "\033[0;31mArchitecture not exactly!!! Please check\033[0m\n"
-    exit 1
-  fi 
+  printf "\033[1;33mDownloading \033[0;31m\"%s\"" "$app_name"
+  [[ -n $arch ]] && printf " (%s)" "$arch"
+  printf "\033[0m\n"
+  case $arch in
+    arm64-v8a) url_regexp='arm64-v8a</div>[^@]*@\([^"]*\)' ;;
+    armeabi-v7a) url_regexp='armeabi-v7a</div>[^@]*@\([^"]*\)' ;;
+    x86) url_regexp='x86</div>[^@]*@\([^"]*\)' ;;
+    x86_64) url_regexp='x86_64</div>[^@]*@\([^"]*\)' ;;
+    *) printf "\033[0;31mArchitecture not exactly!!! Please check\033[0m\n"
+       exit 1 ;;
+  esac 
   export version=${version:-$(get_apkmirror_vers $app_categories | get_largest_ver)}
   printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version"
   local base_apk="$app_name.apk"
-  if [[ -z $arch ]]; then
-      local dl_url=$(dl_apkmirror "$app_link-${version//./-}-release/" \
-			"APK</span>[^@]*@\([^#]*\)" \
-			"$base_apk")
-  elif [[ $arch == "arm64-v8a" ]]; then
-      local dl_url=$(dl_apkmirror "$app_link-${version//./-}-release/" \
+  local dl_url=$(dl_apkmirror "$app_link-${version//./-}-release/" \
 			"$url_regexp" \
 			"$base_apk")
-  elif [[ $arch == "armeabi-v7a" ]]; then
-      local dl_url=$(dl_apkmirror "$app_link-${version//./-}-release/" \
-			"$url_regexp" \
-			"$base_apk")
-  elif [[ $arch == "x86" ]]; then
-      local dl_url=$(dl_apkmirror "$app_link-${version//./-}-release/" \
-			"$url_regexp" \
-			"$base_apk")
-  elif [[ $arch == "x86_64" ]]; then
-      local dl_url=$(dl_apkmirror "$app_link-${version//./-}-release/" \
-			"$url_regexp" \
-			"$base_apk")
-  fi
 }
+
 
 get_uptodown_resp() {
     req "${1}/versions" -
