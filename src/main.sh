@@ -165,7 +165,7 @@ get_uptodown() {
         printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version"
         dl_uptodown "$uptwod_resp" "$version" "$out_name"
     else
-        version=${available_versions[0]}
+        version=${available_versions[1]}
         printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version"
         uptwod_resp=$(get_uptodown_resp "$applink")
         dl_uptodown "$uptwod_resp" "$version" "$out_name"
