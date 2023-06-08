@@ -161,7 +161,7 @@ get_uptodown() {
     printf "\033[1;33mDownloading \033[0;31m\"%s\"\033[0m\n" "$app_name"
     local out_name=$(printf '%s' "$app_name" | tr '.' '_' | tr '[:upper:]' '[:lower:]' && printf '%s' ".apk")
     local uptwod_resp=$(get_uptodown_resp "$applink")
-    export version=${version:-${(get_uptodown_vers "$uptwod_resp")[1]}}
+    export version=${version:-$(get_uptodown_vers “$uptwod_resp” | sort -V)[-1]}
     printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version"
     dl_uptodown "$uptwod_resp" "$version" "$out_name"
 }
