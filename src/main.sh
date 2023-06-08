@@ -110,14 +110,17 @@ get_apkmirror() {
   local app_categories=$(echo ${apps[$app_name]} | jq -r '.category_link')
   local app_link=$(echo ${apps[$app_name]} | jq -r '.app_link')  
   printf "\033[1;33mDownloading \033[0;31m\"%s\"" "$app_name"
-  [[ -n $arch ]] && printf " (%s)" "$arch"
+  if [[ -n $arch ]]; then
+    printf " (%s)" "$arch"
+  fi
   printf "\033[0m\n"
-  declare -A url_regexp_map
-    url_regexp_map["arm64-v8a"]='arm64-v8a</div>[^@]*@\([^"]*\)'
-    url_regexp_map["armeabi-v7a"]='armeabi-v7a</div>[^@]*@\([^"]*\)'
-    url_regexp_map["x86"]='x86</div>[^@]*@\([^"]*\)'
-    url_regexp_map["x86_64"]='x86_64</div>[^@]*@\([^"]*\)'
-    url_regexp_map["universal"]='APK</span>[^@]*@\([^#]*\)'
+  declare -A url_regexp_map=(
+    ["arm64-v8a"]='arm64-v8a</div>[^@]*@\([^"]*\)'
+    ["armeabi-v7a"]='armeabi-v7a</div>[^@]*@\([^"]*\)'
+    ["x86"]='x86</div>[^@]*@\([^"]*\)'
+    ["x86_64"]='x86_64</div>[^@]*@\([^"]*\)'
+    ["universal"]='APK</span>[^@]*@\([^#]*\)'
+  )
   if [[ -z $arch ]]; then
     arch="universal"
   fi
@@ -200,15 +203,19 @@ patch() {
   local apk_name=$1
   local apk_out=$2
   local arch=$3
-  declare -A arch_map
-    arch_map["arm64-v8a"]="--rip-lib x86 --rip-lib x86_64 --rip-lib armeabi-v7a"
-    arch_map["armeabi-v7a"]="--rip-lib x86 --rip-lib x86_64 --rip-lib arm64-v8a"
-    arch_map["x86"]="--rip-lib x86_64 --rip-lib arm64-v8a --rip-lib armeabi-v7a"
-    arch_map["x86_64"]="--rip-lib x86 --rip-lib armeabi-v7a --rip-lib arm64-v8a"
-    arch_map["arm"]="--rip-lib x86 --rip-lib x86_64"
+  declare -A arch_map=(
+    ["arm64-v8a"]="--rip-lib x86 --rip-lib x86_64 --rip-lib armeabi-v7a"
+    ["armeabi-v7a"]="--rip-lib x86 --rip-lib x86_64 --rip-lib arm64-v8a"
+    ["x86"]="--rip-lib x86_64 --rip-lib arm64-v8a --rip-lib armeabi-v7a"
+    ["x86_64"]="--rip-lib x86 --rip-lib armeabi-v7a --rip-lib arm64-v8a"
+    ["arm"]="--rip-lib x86 --rip-lib x86_64"
+  )
   printf "\033[1;33mStarting patch \033[0;31m\"%s\"\033[1;33m...\033[0m\n" "$apk_out"
   local base_apk=$(find -name "$apk_name.apk" -print -quit)
-  [[ -f "$base_apk" ]] || { printf "\033[0;31mError: APK file not found\033[0m\n"; exit 1; }
+  if [[ ! -f "$base_apk" ]]; then
+    printf "\033[0;31mError: APK file not found\033[0m\n"
+    exit 1
+  fi
   printf "\033[1;33mSearching for patch files...\033[0m\n"
   local patches_jar=$(find -name "revanced-patches*.jar" -print -quit)
   local integrations_apk=$(find -name "revanced-integrations*.apk" -print -quit)
@@ -232,6 +239,15 @@ patch() {
       --keystore=./src/ks.keystore \
       -o "build/$apk_out.apk"
   printf "\033[0;32mPatch \033[0;31m\"%s\" \033[0;32mis finished!\033[0m\n" "$apk_out"
-  unset version exclude_patches include_patches
+  vars_to_unset=(
+    "version"
+    "exclude_patches"
+    "include_patches"
+  )
+  for varname in "${vars_to_unset[@]}"; do
+    if [[ -v "$varname" ]]; then
+      unset "$varname"
+    fi
+  done
   rm -f ./"$base_apk"
 }
