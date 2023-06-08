@@ -37,39 +37,20 @@ dl_gh() {
 }
 
 get_patches_key() {
-    local folder="$1"
     local exclude_file="patches/${folder}/exclude-patches"
     local include_file="patches/${folder}/include-patches"
     local word
     for file in "$exclude_file" "$include_file"; do
-        if [ ! -d "${file%/*}" ]; then
-            printf "\033[0;31mFolder not found: \"%s\"\n\033[0m" "${file%/*}"
-            return 1
-        fi
-        if [ ! -f "$file" ]; then
-            printf "\033[0;31mFile not found: \"%s\"\n\033[0m" "$file"
-            return 1
-        fi
-        if [ ! -r "$file" ]; then
-            printf "\033[0;31mCannot read file: \"%s\"\n\033[0m" "$file"
-            return 1
-        fi
+        [[ -d "${file%/*}" && -f "$file" && -r "$file" ]] || { printf "\033[0;31mError: \"%s\" is not a valid file\033[0m\n" "$file"; return 1; }
     done
     while IFS= read -r word; do
-        if [[ -n "$word" ]]; then
-            exclude_patches+=("-e" "$word")
-        fi
+        [[ -n "$word" ]] && exclude_patches+=("-e" "$word")
     done < "$exclude_file"
     while IFS= read -r word; do
-        if [[ -n "$word" ]]; then
-            include_patches+=("-i" "$word")
-        fi
+        [[ -n "$word" ]] && include_patches+=("-i" "$word")
     done < "$include_file"
     for word in "${exclude_patches[@]}"; do
-      if [[ " ${include_patches[*]} " =~ " $word " ]]; then
-        printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$word"
-        return 1
-      fi
+      [[ " ${include_patches[*]} " =~ " $word " ]] && { printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$word"; return 1; }
     done
     return 0
 }
@@ -200,12 +181,13 @@ patch() {
   local apk_name=$1
   local apk_out=$2
   local arch=$3
-  declare -A arch_map
-    arch_map["arm64-v8a"]="--rip-lib x86 --rip-lib x86_64 --rip-lib armeabi-v7a"
-    arch_map["armeabi-v7a"]="--rip-lib x86 --rip-lib x86_64 --rip-lib arm64-v8a"
-    arch_map["x86"]="--rip-lib x86_64 --rip-lib arm64-v8a --rip-lib armeabi-v7a"
-    arch_map["x86_64"]="--rip-lib x86 --rip-lib armeabi-v7a --rip-lib arm64-v8a"
-    arch_map["arm"]="--rip-lib x86 --rip-lib x86_64"
+  declare -A arch_map=(
+    [arm64-v8a]="--rip-lib x86 --rip-lib x86_64 --rip-lib armeabi-v7a"
+    [armeabi-v7a]="--rip-lib x86 --rip-lib x86_64 --rip-lib arm64-v8a"
+    [x86]="--rip-lib x86_64 --rip-lib arm64-v8a --rip-lib armeabi-v7a"
+    [x86_64]="--rip-lib x86 --rip-lib armeabi-v7a --rip-lib arm64-v8a"
+    [arm]="--rip-lib x86 --rip-lib x86_64"
+  )
   printf "\033[1;33mStarting patch \033[0;31m\"%s\"\033[1;33m...\033[0m\n" "$apk_out"
   local base_apk=$(find -name "$apk_name.apk" -print -quit)
   [[ -f "$base_apk" ]] || { printf "\033[0;31mError: APK file not found\033[0m\n"; exit 1; }
@@ -213,10 +195,7 @@ patch() {
   local patches_jar=$(find -name "revanced-patches*.jar" -print -quit)
   local integrations_apk=$(find -name "revanced-integrations*.apk" -print -quit)
   local cli_jar=$(find -name "revanced-cli*.jar" -print -quit)
-  if [[ -z "$patches_jar" ]] || [[ -z "$integrations_apk" ]] || [[ -z "$cli_jar" ]]; then
-    printf "\033[0;31mError: patches files not found\033[0m\n"
-    exit 1
-  fi
+  [[ "$patches_jar" && "$integrations_apk" && "$cli_jar" ]] || { printf "\033[0;31mError: patches files not found\033[0m\n"; exit 1; }
   printf "\033[1;33mRunning patch \033[0;31m\"%s\" \033[1;33mwith the following files:\033[0m\n" "$apk_out"
   for file in "$cli_jar" "$integrations_apk" "$patches_jar" "$base_apk"; do
     printf "\033[0;36m->%s\033[0m\n" "$file"
