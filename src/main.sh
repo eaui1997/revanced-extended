@@ -159,20 +159,11 @@ get_uptodown() {
     fi
     local applink=$(echo ${apps[$app_name]} | jq -r '.app_link')
     printf "\033[1;33mDownloading \033[0;31m\"%s\"\033[0m\n" "$app_name"
-    export version="$version"
     local out_name=$(printf '%s' "$app_name" | tr '.' '_' | tr '[:upper:]' '[:lower:]' && printf '%s' ".apk")
-    local uptwod_resp
-    uptwod_resp=$(get_uptodown_resp "$applink")
-    local available_versions=($(get_uptodown_vers "$uptwod_resp"))
-    if [[ " ${available_versions[@]} " =~ " ${version} " ]]; then
-        printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version"
-        dl_uptodown "$uptwod_resp" "$version" "$out_name"
-    else
-        version=${available_versions[1]}
-        printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version"
-        uptwod_resp=$(get_uptodown_resp "$applink")
-        dl_uptodown "$uptwod_resp" "$version" "$out_name"
-    fi
+    local uptwod_resp=$(get_uptodown_resp "$applink")
+    export version=${version:-(get_uptodown_vers "$uptwod_resp")[1]}
+    printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version"
+    dl_uptodown "$uptwod_resp" "$version" "$out_name"
 }
 
 get_ver() {
