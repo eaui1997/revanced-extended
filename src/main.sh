@@ -101,6 +101,7 @@ dl_apkmirror() {
 
 get_apkmirror() {
   eval "$(cat ./src/apkmirror.info)"
+  eval "$(cat ./src/arch_regexp.info)"
   local app_name=$1 
   local arch=$2
   if [[ -z ${apps[$app_name]} ]]; then
@@ -114,13 +115,6 @@ get_apkmirror() {
     printf " (%s)" "$arch"
   fi
   printf "\033[0m\n"
-  declare -A url_regexp_map=(
-    ["arm64-v8a"]='arm64-v8a</div>[^@]*@\([^"]*\)'
-    ["armeabi-v7a"]='armeabi-v7a</div>[^@]*@\([^"]*\)'
-    ["x86"]='x86</div>[^@]*@\([^"]*\)'
-    ["x86_64"]='x86_64</div>[^@]*@\([^"]*\)'
-    ["universal"]='APK</span>[^@]*@\([^#]*\)'
-  )
   if [[ -z $arch ]]; then
     arch="universal"
   fi
@@ -143,6 +137,7 @@ get_uptodown_resp() {
 get_uptodown_vers() {
     sed -n 's;.*version">\(.*\)</span>$;\1;p' <<< "$1"
 }
+
 dl_uptodown() {
     local uptwod_resp=$1 version=$2 output=$3
     local url
@@ -150,6 +145,7 @@ dl_uptodown() {
     url=$(req "$url" - | sed -n 's;.*data-url="\(.*\)".*;\1;p') || return 1
     req "$url" "$output"
 }
+
 get_uptodown() {
      eval "$(cat ./src/uptodown.info)" 
      local app_name=$1  
@@ -192,16 +188,10 @@ get_ver() {
 }
 
 patch() {
+  eval $"(cat ./src/rip_lip.info)"
   local apk_name=$1
   local apk_out=$2
   local arch=$3
-  declare -A arch_map=(
-    ["arm64-v8a"]="--rip-lib x86 --rip-lib x86_64 --rip-lib armeabi-v7a"
-    ["armeabi-v7a"]="--rip-lib x86 --rip-lib x86_64 --rip-lib arm64-v8a"
-    ["x86"]="--rip-lib x86_64 --rip-lib arm64-v8a --rip-lib armeabi-v7a"
-    ["x86_64"]="--rip-lib x86 --rip-lib armeabi-v7a --rip-lib arm64-v8a"
-    ["arm"]="--rip-lib x86 --rip-lib x86_64"
-  )
   printf "\033[1;33mStarting patch \033[0;31m\"%s\"\033[1;33m...\033[0m\n" "$apk_out"
   local base_apk=$(find -name "$apk_name.apk" -print -quit)
   if [[ ! -f "$base_apk" ]]; then
