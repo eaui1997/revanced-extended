@@ -66,10 +66,10 @@ get_patches_key() {
         fi
     done < "$include_file"
     for word in "${exclude_patches[@]}"; do
-      if [[ " ${include_patches[*]} " =~ " $word " ]]; then
-        printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$word"
-        return 1
-      fi
+        if [[ " ${include_patches[*]} " =~ " $word " ]]; then
+          printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$word"
+          return 1
+        fi
     done
     return 0
 }
@@ -83,51 +83,50 @@ get_apkmirror_vers() {
 } 
 
 get_largest_ver() { 
-   local max=0 
-   while read -r v || [ -n "$v" ]; do                    
-         if [[ ${v//[!0-9]/} -gt ${max//[!0-9]/} ]]; then max=$v; fi 
-           done 
-               if [[ $max = 0 ]]; then echo ""; else echo "$max"; fi  
+    local max=0 
+    while read -r v || [ -n "$v" ]; do                    
+        if [[ ${v//[!0-9]/} -gt ${max//[!0-9]/} ]]; then max=$v; fi 
+            done 
+                if [[ $max = 0 ]]; then echo ""; else echo "$max"; fi  
 }
 
 dl_apkmirror() {
-  local url=$1 regexp=$2 output=$3
-  url="https://www.apkmirror.com$(req "$url" - | tr '\n' ' ' | sed -n "s/href=\"/@/g; s;.*${regexp}.*;\1;p")"
-  echo "$url"
-  url="https://www.apkmirror.com$(req "$url" - | tr '\n' ' ' | sed -n 's;.*href="\(.*key=[^"]*\)">.*;\1;p')"
-  url="https://www.apkmirror.com$(req "$url" - | tr '\n' ' ' | sed -n 's;.*href="\(.*key=[^"]*\)">.*;\1;p')"
-  req "$url" "$output"
+    local url=$1 regexp=$2 output=$3
+    url="https://www.apkmirror.com$(req "$url" - | tr '\n' ' ' | sed -n "s/href=\"/@/g; s;.*${regexp}.*;\1;p")"
+    echo "$url"
+    url="https://www.apkmirror.com$(req "$url" - | tr '\n' ' ' | sed -n 's;.*href="\(.*key=[^"]*\)">.*;\1;p')"
+    url="https://www.apkmirror.com$(req "$url" - | tr '\n' ' ' | sed -n 's;.*href="\(.*key=[^"]*\)">.*;\1;p')"
+    req "$url" "$output"
 }
 
 get_apkmirror() {
-  source ./src/apkmirror.info
-  source ./src/arch_regexp.info
-  local app_name=$1 
-  local arch=$2
-  if [[ -z ${apps[$app_name]} ]]; then
-    printf "\033[0;31mInvalid app name\033[0m\n"
-    exit 1
-  fi
-  local app_category=$(echo ${apps[$app_name]} | jq -r '.category_link')
-  local app_link=$(echo ${apps[$app_name]} | jq -r '.app_link')  
-  printf "\033[1;33mDownloading \033[0;31m\"%s\"" "$app_name"
-  if [[ -n $arch ]]; then
-    printf " (%s)" "$arch"
-  fi
-  printf "\033[0m\n"
-  if [[ -z $arch ]]; then
-    arch="universal"
-  fi
-  if [[ -z ${url_regexp_map[$arch]} ]]; then
-    printf "\033[0;31mArchitecture not exactly!!! Please check\033[0m\n"
-    exit 1
-  fi 
-  export version=${version:-$(get_apkmirror_vers $app_category | get_largest_ver)}
-  printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version"
-  local base_apk="$app_name.apk"
-  local dl_url=$(dl_apkmirror "$app_link-${version//./-}-release/" \
-			"${url_regexp_map[$arch]}" \
-			"$base_apk")
+    source ./src/apkmirror.info
+    local app_name=$1 
+    local arch=$2
+    if [[ -z ${apps[$app_name]} ]]; then
+        printf "\033[0;31mInvalid app name\033[0m\n"
+        exit 1
+    fi
+    local app_category=$(echo ${apps[$app_name]} | jq -r '.category_link')
+    local app_link=$(echo ${apps[$app_name]} | jq -r '.app_link')  
+    printf "\033[1;33mDownloading \033[0;31m\"%s\"" "$app_name"
+    if [[ -n $arch ]]; then
+        printf " (%s)" "$arch"
+    fi
+    printf "\033[0m\n"
+    if [[ -z $arch ]]; then
+        arch="universal"
+    fi
+    if [[ -z ${url_regexp_map[$arch]} ]]; then
+        printf "\033[0;31mArchitecture not exactly!!! Please check\033[0m\n"
+        exit 1
+    fi 
+    export version=${version:-$(get_apkmirror_vers $app_category | get_largest_ver)}
+    printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version"
+    local base_apk="$app_name.apk"
+    local dl_url=$(dl_apkmirror "$app_link-${version//./-}-release/" \
+                                "${url_regexp_map[$arch]}" \
+                                "$base_apk")
 }
 
 get_uptodown_resp() {
@@ -164,7 +163,7 @@ get_uptodown() {
 }
 
 get_ver() {
-    source ./src/version.info
+    source ./src/versions.info
     local app_name=$1 
     local patch_name=$(echo ${versions[$app_name]} | jq -r '.patch')
     local pkg_name=$(echo ${versions[$app_name]} | jq -r '.package')
@@ -188,60 +187,65 @@ get_ver() {
 }
 
 patch() {
-  source ./src/--rip-lib.info
-  local apk_name=$1
-  local apk_out=$2
-  local arch=$3
-  printf "\033[1;33mStarting patch \033[0;31m\"%s\"\033[1;33m...\033[0m\n" "$apk_out"
-  local base_apk=$(find -name "$apk_name.apk" -print -quit)
-  if [[ ! -f "$base_apk" ]]; then
-    printf "\033[0;31mError: APK file not found\033[0m\n"
-    exit 1
-  fi
-  printf "\033[1;33mSearching for patch files...\033[0m\n"
-  local patches_jar=$(find -name "revanced-patches*.jar" -print -quit)
-  local integrations_apk=$(find -name "revanced-integrations*.apk" -print -quit)
-  local cli_jar=$(find -name "revanced-cli*.jar" -print -quit)
-  if [[ -z "$patches_jar" ]] || [[ -z "$integrations_apk" ]] || [[ -z "$cli_jar" ]]; then
-    printf "\033[0;31mError: patches files not found\033[0m\n"
-    exit 1
-  fi
-  printf "\033[1;33mRunning patch \033[0;31m\"%s\" \033[1;33mwith the following files:\033[0m\n" "$apk_out"
-  for file in "$cli_jar" "$integrations_apk" "$patches_jar" "$base_apk"; do
-    printf "\033[0;36m->%s\033[0m\n" "$file"
-  done
-  printf "\033[0;32mINCLUDE PATCHES :%s\033[0m\n\033[0;31mEXCLUDE PATCHES :%s\033[0m\n" "${include_patches[*]}" "${exclude_patches[*]}"
-  if [[ -z "$arch" ]]; then
-    shift
-    java -jar "$cli_jar" \
-      -m "$integrations_apk" \
-      -b "$patches_jar" \
-      -a "$base_apk" \
-      ${exclude_patches[@]} \
-      ${include_patches[@]} \
-      --keystore=./src/ks.keystore \
-      -o "build/$apk_out.apk"
-  else
-    java -jar "$cli_jar" \
-      -m "$integrations_apk" \
-      -b "$patches_jar" \
-      -a "$base_apk" \
-      ${exclude_patches[@]} \
-      ${include_patches[@]} \
-      ${arch_map[$arch]} \
-      --keystore=./src/ks.keystore \
-      -o "build/$apk_out.apk"
-  fi
-  printf "\033[0;32mPatch \033[0;31m\"%s\" \033[0;32mis finished!\033[0m\n" "$apk_out"
-  vars_to_unset=(
-    "version"
-    "exclude_patches"
-    "include_patches"
-  )
-  for varname in "${vars_to_unset[@]}"; do
-    if [[ -v "$varname" ]]; then
-      unset "$varname"
+    source ./src/--rip-lib.info
+    local apk_name=$1
+    local apk_out=$2
+    local arch=$3
+    printf "\033[1;33mStarting patch \033[0;31m\"%s\"\033[1;33m...\033[0m\n" "$apk_out"
+    local base_apk=$(find -name "$apk_name.apk" -print -quit)
+    if [[ ! -f "$base_apk" ]]; then
+        printf "\033[0;31mError: APK file not found\033[0m\n"
+        exit 1
     fi
-  done
-  rm -f ./"$base_apk"
+    printf "\033[1;33mSearching for patch files...\033[0m\n"
+    local patches_jar=$(find -name "revanced-patches*.jar" -print -quit)
+    local integrations_apk=$(find -name "revanced-integrations*.apk" -print -quit)
+    local cli_jar=$(find -name "revanced-cli*.jar" -print -quit)
+    if [[ -z "$patches_jar" ]] || [[ -z "$integrations_apk" ]] || [[ -z "$cli_jar" ]]; then
+        printf "\033[0;31mError: patches files not found\033[0m\n"
+        exit 1
+    fi
+    printf "\033[1;33mRunning patch \033[0;31m\"%s\" \033[1;33mwith the following files:\033[0m\n" "$apk_out"
+    for file in "$cli_jar" "$integrations_apk" "$patches_jar" "$base_apk"; do
+        printf "\033[0;36m->%s\033[0m\n" "$file"
+    done
+    printf "\033[0;32mINCLUDE PATCHES :%s\033[0m\n\033[0;31mEXCLUDE PATCHES :%s\033[0m\n" "${include_patches[*]}" "${exclude_patches[*]}"
+    if [[ -z "$arch" ]]; then
+        shift
+        java -jar "$cli_jar" \
+          -m "$integrations_apk" \
+          -b "$patches_jar" \
+          -a "$base_apk" \
+          ${exclude_patches[@]} \
+          ${include_patches[@]} \
+          --keystore=./src/ks.keystore \
+          -o "build/$apk_out.apk"
+    else
+        if [[ ! ${arch_map[$arch]+_} ]]; then
+            printf "\033[0;31mError: invalid arch value\033[0m\n"
+            exit 1
+        else
+            java -jar "$cli_jar" \
+              -m "$integrations_apk" \
+              -b "$patches_jar" \
+              -a "$base_apk" \
+               ${exclude_patches[@]} \
+               ${include_patches[@]} \
+               ${arch_map[$arch]} \
+               --keystore=./src/ks.keystore \
+               -o "build/$apk_out.apk"
+        fi
+    fi
+    printf "\033[0;32mPatch \033[0;31m\"%s\" \033[0;32mis finished!\033[0m\n" "$apk_out"
+    vars_to_unset=(
+        "version"
+        "exclude_patches"
+        "include_patches"
+    )
+    for varname in "${vars_to_unset[@]}"; do
+        if [[ -v "$varname" ]]; then
+            unset "$varname"
+        fi
+    done
+    rm -f ./"$base_apk"
 }
