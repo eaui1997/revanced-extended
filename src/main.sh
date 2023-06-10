@@ -100,8 +100,8 @@ dl_apkmirror() {
 }
 
 get_apkmirror() {
-  eval "$(cat ./src/apkmirror.info)"
-  eval "$(cat ./src/arch_regexp.info)"
+  source ./src/apkmirror.info
+  source ./src/arch_regexp.info
   local app_name=$1 
   local arch=$2
   if [[ -z ${apps[$app_name]} ]]; then
@@ -147,7 +147,7 @@ dl_uptodown() {
 }
 
 get_uptodown() {
-     eval "$(cat ./src/uptodown.info)" 
+     source ./src/uptodown.info
      local app_name=$1  
      if [[ -z ${apps[$app_name]} ]]; then 
         printf "\033[0;31mInvalid app name\033[0m\n" 
@@ -164,7 +164,7 @@ get_uptodown() {
 }
 
 get_ver() {
-    eval "$(cat ./src/version.info)"
+    source ./src/version.info
     local app_name=$1 
     local patch_name=$(echo ${versions[$app_name]} | jq -r '.patch')
     local pkg_name=$(echo ${versions[$app_name]} | jq -r '.package')
@@ -188,7 +188,7 @@ get_ver() {
 }
 
 patch() {
-  eval $"(cat ./src/rip_lip.info)"
+  source ./src/rip_lip.info
   local apk_name=$1
   local apk_out=$2
   local arch=$3
