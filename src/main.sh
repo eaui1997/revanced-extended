@@ -188,7 +188,7 @@ get_ver() {
 }
 
 patch() {
-  source ./src/rip_lip.info
+  source ./src/--rip-lib.info
   local apk_name=$1
   local apk_out=$2
   local arch=$3
