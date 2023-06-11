@@ -18,8 +18,6 @@ declare -A apps=(
   ["sync-for-reddit"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=sync-for-reddit","app_link":"https://www.apkmirror, ,sz.com/apk/red-apps-ltd/sync-for-reddit/sync-for-reddit"}'
   # Instagram 
   ["instagram"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=instagram-instagram","app_link":"https://www.apkmirror.com/apk/instagram/instagram-instagram/instagram-instagram"}'
-  # Citra Emulator 
-  ["citra"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=citra-emulator","app_link":"https://www.apkmirror.com/apk/citra-emulator/citra-emulator/citra-emulator"}'
   # Backdrops Wallpapers 
   ["backdrops-wallpapers"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=backdrops-wallpapers","app_link":"https://www.apkmirror.com/apk/backdrops/backdrops-wallpapers/backdrops-wallpapers"}'
   # Warn Metter
