@@ -24,8 +24,6 @@ declare -A apps=(
   ["spotify-lite"]='{"app_link":"https://spotify-lite.en.uptodown.com/android"}'
   # Inshorts - News in 60 words
   ["inshorts"]='{"app_link":"https://inshorts.en.uptodown.com/android"}' 
-  # Citra Emulator 
-  ["citra"]='{"app_link":"https://citra-emulator-3ds-emulator.en.uptodown.com/android"}' 
   # Backdrops Wallpapers 
   ["backdrops"]='{"app_link":"https://backdrops.en.uptodown.com/android"}' 
   # WarnWetter 
