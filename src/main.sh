@@ -57,12 +57,12 @@ get_patches_key() {
     done
     while IFS= read -r word; do
         if [[ -n "$word" ]]; then
-            exclude_patches+=("-e" "$word")
+            exclude_patches+=("--exclude" "$word")
         fi
     done < "$exclude_file"
     while IFS= read -r word; do
         if [[ -n "$word" ]]; then
-            include_patches+=("-i" "$word")
+            include_patches+=("--include" "$word")
         fi
     done < "$include_file"
     for word in "${exclude_patches[@]}"; do
@@ -214,27 +214,27 @@ patch() {
     if [[ -z "$arch" ]]; then
         shift
         java -jar "$cli_jar" \
-          -m "$integrations_apk" \
-          -b "$patches_jar" \
-          -a "$base_apk" \
-          ${exclude_patches[@]} \
-          ${include_patches[@]} \
-          --keystore=./src/ks.keystore \
-          -o "build/$apk_out.apk"
+             --apk "$base_apk" \
+             --bundle "$patches_jar" \
+             --merge "$integrations_apk" \
+             ${exclude_patches[@]} \
+             ${include_patches[@]} \
+             --keystore ./src/ks.keystore \
+             --out "build/$apk_out.apk"
     else
         if [[ ! ${arch_map[$arch]+_} ]]; then
             printf "\033[0;31mError: invalid arch value\033[0m\n"
             exit 1
         else
             java -jar "$cli_jar" \
-              -m "$integrations_apk" \
-              -b "$patches_jar" \
-              -a "$base_apk" \
-              ${exclude_patches[@]} \
-              ${include_patches[@]} \
-              ${arch_map[$arch]} \
-              --keystore=./src/ks.keystore \
-              -o "build/$apk_out.apk"
+                 --apk "$base_apk" \
+                 --bundle "$patches_jar" \
+                 --merge "$integrations_apk" \
+                 ${exclude_patches[@]} \
+                 ${include_patches[@]} \
+                 ${arch_map[$arch]} \
+                 --keystore ./src/ks.keystore \
+                 --out "build/$apk_out.apk"
         fi
     fi
     printf "\033[0;32mPatch \033[0;31m\"%s\" \033[0;32mis finished!\033[0m\n" "$apk_out"
