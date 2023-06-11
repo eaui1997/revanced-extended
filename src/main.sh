@@ -103,7 +103,7 @@ get_apkmirror() {
     source ./src/apkmirror.info
     source ./src/arch_regexp.info
     local app_name=$1 
-    local arch=$2
+    local arch=${2:-universal}
     if [[ -z ${apps[$app_name]} ]]; then
         printf "\033[0;31mInvalid app name\033[0m\n"
         exit 1
@@ -115,9 +115,6 @@ get_apkmirror() {
         printf " (%s)" "$arch"
     fi
     printf "\033[0m\n"
-    if [[ -z $arch ]]; then
-        arch="universal"
-    fi
     if [[ -z ${url_regexp_map[$arch]} ]]; then
         printf "\033[0;31mArchitecture not exactly!!! Please check\033[0m\n"
         exit 1
@@ -222,8 +219,8 @@ patch() {
           --keystore=./src/ks.keystore \
           -o "build/$apk_out.apk"
     else
-        if [[ ! ${arch_map[$arch]+_} ]]; then
-            printf "\033[0;31mError: invalid arch value\033[0m\n"
+        if [[ z ${arch_map[$arch]} ]]; then
+            printf "\033[0;31mError: invalid split arch value\033[0m\n"
             exit 1
         else
             java -jar "$cli_jar" \
