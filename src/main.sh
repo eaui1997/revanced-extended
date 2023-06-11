@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dl_gh() {
+function dl_gh() {
     local user=$1
     local repos=$2
     local tag=$3
@@ -36,7 +36,7 @@ dl_gh() {
     return 0
 }
 
-get_patches_key() {
+function get_patches_key() {
     local folder="$1"
     local exclude_file="patches/${folder}/exclude-patches"
     local include_file="patches/${folder}/include-patches"
@@ -74,15 +74,15 @@ get_patches_key() {
     return 0
 }
 
-req() {  
+function req() {  
     wget -nv -O "$2" -U "Mozilla/5.0 (X11; Linux x86_64; rv:111.0) Gecko/20100101 Firefox/111.0" "$1" 
 } 
 
-get_apkmirror_vers() {  
+function get_apkmirror_vers() {  
     req "$1" - | sed -n 's;.*Version:</span><span class="infoSlide-value">\(.*\) </span>.*;\1;p' 
 } 
 
-get_largest_ver() { 
+function get_largest_ver() { 
     local max=0 
     while read -r v || [ -n "$v" ]; do                    
         if [[ ${v//[!0-9]/} -gt ${max//[!0-9]/} ]]; then max=$v; fi 
@@ -90,7 +90,7 @@ get_largest_ver() {
                 if [[ $max = 0 ]]; then echo ""; else echo "$max"; fi  
 }
 
-dl_apkmirror() {
+function dl_apkmirror() {
     local url=$1 regexp=$2 output=$3
     url="https://www.apkmirror.com$(req "$url" - | tr '\n' ' ' | sed -n "s/href=\"/@/g; s;.*${regexp}.*;\1;p")"
     echo "$url"
@@ -99,7 +99,7 @@ dl_apkmirror() {
     req "$url" "$output"
 }
 
-get_apkmirror() {
+function get_apkmirror() {
     source ./src/apkmirror.info
     source ./src/arch_regexp.info
     local app_name=$1 
@@ -130,15 +130,15 @@ get_apkmirror() {
                                 "$base_apk")
 }
 
-get_uptodown_resp() {
+function get_uptodown_resp() {
     req "${1}/versions" -
 }
 
-get_uptodown_vers() {
+function get_uptodown_vers() {
     sed -n 's;.*version">\(.*\)</span>$;\1;p' <<< "$1"
 }
 
-dl_uptodown() {
+function dl_uptodown() {
     local uptwod_resp=$1 version=$2 output=$3
     local url
     url=$(grep -F "${version}</span>" -B 2 <<< "$uptwod_resp" | head -1 | sed -n 's;.*data-url="\(.*\)".*;\1;p') || return 1
@@ -146,7 +146,7 @@ dl_uptodown() {
     req "$url" "$output"
 }
 
-get_uptodown() {
+function get_uptodown() {
      source ./src/uptodown.info
      local app_name=$1  
      if [[ -z ${apps[$app_name]} ]]; then 
@@ -163,7 +163,7 @@ get_uptodown() {
      dl_uptodown "$uptwod_resp" "$version" "$out_name" 
 }
 
-get_ver() {
+function get_ver() {
     source ./src/versions.info
     local app_name=$1 
     local patch_name=$(echo ${versions[$app_name]} | jq -r '.patch')
@@ -187,7 +187,7 @@ get_ver() {
     return 0
 }
 
-patch() {
+function patch() {
     source ./src/--rip-lib.info
     local apk_name=$1
     local apk_out=$2
