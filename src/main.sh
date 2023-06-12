@@ -203,7 +203,7 @@ function patch() {
              --out "build/$apk_out.apk"
     else
         if [[ ! ${arch_map[$arch]+_} ]]; then
-            printf "\033[0;31mError: invalid arch value\033[0m\n"
+            printf "\033[0;31mError: invalid split arch value\033[0m\n"
             exit 1
         else
             java -jar "$cli_jar" \
