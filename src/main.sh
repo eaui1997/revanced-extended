@@ -192,15 +192,15 @@ function patch() {
     for file in "$cli_jar" "$integrations_apk" "$patches_jar" "$base_apk"; do
         printf "\033[0;36m->%s\033[0m\n" "$file"
     done
-    printf "\033[0;32mINCLUDE PATCHES :%s\033[0m\n\033[0;31mEXCLUDE PATCHES :%s\033[0m\n" "${include_patches[*]}" "${exclude_patches[*]}"
+    printf "\033[0;32mINCLUDE PATCHES :%s\033[0m\n\033[0;31mEXCLUDE PATCHES :%s\033[0m\n" "${exclude_string[@]}" "${exclude_string[@]}"
     if [[ -z "$arch" ]]; then
         shift
         java -jar "$cli_jar" \
              --apk "$base_apk" \
              --bundle "$patches_jar" \
              --merge "$integrations_apk" \
-             ${exclude_patches[@]} \
-             ${include_patches[@]} \
+             ${exclude_patches} \
+             ${include_patches} \
              --keystore ./src/ks.keystore \
              --out "build/$apk_out.apk"
     else
@@ -212,8 +212,8 @@ function patch() {
                  --apk "$base_apk" \
                  --bundle "$patches_jar" \
                  --merge "$integrations_apk" \
-                 ${exclude_patches[@]} \
-                 ${include_patches[@]} \
+                 ${exclude_patches} \
+                 ${include_patches} \
                  ${arch_map[$arch]} \
                  --keystore ./src/ks.keystore \
                  --out "build/$apk_out.apk"
