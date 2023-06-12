@@ -222,6 +222,8 @@ function patch() {
         "version"
         "exclude_patches"
         "include_patches"
+        "include_string"
+        "exclude_string"
     )
     for varname in "${vars_to_unset[@]}"; do
         if [[ -v "$varname" ]]; then
