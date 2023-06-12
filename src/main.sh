@@ -40,24 +40,18 @@ function get_patches_key() {
     local patch_file="$1"
     exclude_string=($(awk -F '=' '/exclude-patches/{print $2}' patches/$patch_file | tr ' ' '\n'))
     include_string=($(awk -F '=' '/include-patches/{print $2}' patches/$patch_file | tr ' ' '\n'))
-    for patch in "${exclude_string[@]}"; do
-        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
-            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-            exit 1
-        fi
-    done
+    if [[ " ${include_string[@]} " =~ " $patch " ]]; then
+        printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+        exit 1
+    fi
     exclude_patches=""
     include_patches=""
-    while IFS= read -r patch; do 
-        if [[ -n "$patch" ]]; then
-            exclude_patches+="--exclude $patch "
-        fi
-    done < "${exclude_string[@]}"
-    while IFS= read -r patch; do 
-        if [[ -n "$patch" ]]; then
-            include_patches+="--include $patch "
-        fi
-    done < "${include_string[@]}"
+    for patch in "${exclude_string[@]}" ; do
+        exclude_patches+="--exclude $patch "
+    done
+    for patch in "${include_string[@]}" ; do
+        include_patches+="--include $patch "
+    done
 }
 
 function req() {  
