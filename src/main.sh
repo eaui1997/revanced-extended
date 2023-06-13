@@ -38,8 +38,8 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    exclude_string=($(awk -F '=' '/exclude-patches/{print $2}' patches/$patch_file | tr ' ' '\n'))
-    include_string=($(awk -F '=' '/include-patches/{print $2}' patches/$patch_file | tr ' ' '\n'))
+    exclude_string=($(awk -F '--exclude' '/--exclude/{print $2}' patches/$patch_file | tr ' ' '\n'))
+    include_string=($(awk -F '--include' '/--include/{print $2}' patches/$patch_file | tr ' ' '\n'))
     exclude_patches=""
     include_patches=""
     for patch in "${exclude_string[@]}" ; do
