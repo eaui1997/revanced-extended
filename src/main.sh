@@ -37,22 +37,21 @@ function dl_gh() {
 }
 
 function get_patches_key() {
-    local patch_file=$1
-    local excluded_start=$(grep -n -m1 'EXCLUDE PATCHES' "patches/$patch_file" | cut -d':' -f1)
-    local included_start=$(grep -n -m1 'INCLUDE PATCHES' "patches/$patch_file" | cut -d':' -f1)
-    export excluded_patches=$(tail -n +$excluded_start patches/$patch_file | head -n "$(( included_start - excluded_start ))"  | grep '^[^#[:blank:]]')
-    export included_patches=$(tail -n +$included_start patches/$patch_file | grep '^[^#[:blank:]]')
-    patches=()
-    if [[ -n "$excluded_patches" ]]; then
-        while read -r patch; do
-            patches+=("--exclude $patch")
-        done <<< "$excluded_patches"
-    fi
-    if [[ -n "$included_patches" ]]; then
-        while read -r patch; do
-            patches+=("--include $patch")
-        done <<< "$included_patches"
-    fi
+    local patch_file="$1"
+    exclude_string=($(awk -F '--exclude' '/--exclude/{print $2}' patches/$patch_file | tr ' ' '\n'))
+    include_string=($(awk -F '--include' '/--include/{print $2}' patches/$patch_file | tr ' ' '\n'))
+    exclude_patches=""
+    include_patches=""
+    for patch in "${exclude_string[@]}" ; do
+        exclude_patches+="--exclude $patch "
+        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
+            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+            exit 1
+        fi
+    done
+    for patch in "${include_string[@]}" ; do
+        include_patches+="--include $patch "
+    done
 }
 
 function req() {  
@@ -191,14 +190,15 @@ function patch() {
     for file in "$cli_jar" "$integrations_apk" "$patches_jar" "$base_apk"; do
         printf "\033[0;36m->%s\033[0m\n" "$file"
     done
-    printf "\033[0;32mINCLUDE PATCHES :%s\033[0m\n\033[0;31mEXCLUDE PATCHES :%s\033[0m\n" "${included_patches[@]}" "${excluded_patches[@]}"
+    printf "\033[0;32mINCLUDE PATCHES :%s\033[0m\n\033[0;31mEXCLUDE PATCHES :%s\033[0m\n" "${include_string[*]}" "${exclude_string[*]}"
     if [[ -z "$arch" ]]; then
         shift
         java -jar "$cli_jar" \
              --apk "$base_apk" \
              --bundle "$patches_jar" \
              --merge "$integrations_apk" \
-             ${patches[@]} \
+             ${exclude_patches} \
+             ${include_patches} \
              --keystore ./src/ks.keystore \
              --out "build/$apk_out.apk"
     else
@@ -210,7 +210,8 @@ function patch() {
                  --apk "$base_apk" \
                  --bundle "$patches_jar" \
                  --merge "$integrations_apk" \
-                 ${patches[@]} \
+                 ${exclude_patches} \
+                 ${include_patches} \
                  ${arch_map[$arch]} \
                  --keystore ./src/ks.keystore \
                  --out "build/$apk_out.apk"
