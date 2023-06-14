@@ -40,20 +40,25 @@ function get_patches_key() {
     local patch_file="$1"
     local excluded_start=$(grep -n -m1 '--exclude' "patches/$patch_file" | cut -d':' -f1)
 local included_start=$(grep -n -m1 '--include' "patches/$patch_file" | cut -d':' -f1)
-excluded_string=($(tail -n +$excluded_start $patch_file | head -n "$(( included_start - excluded_start ))" | cut -d'=' -f2 | tr ' ' '\n'))
-included_string=($(tail -n +$included_start patches/$patch_file | cut -d'=' -f2 | tr ' ' '\n'))
+excluded_string=($(tail -n +$excluded_start $patch_file | head -n "$(( included_start - excluded_start ))" | cut -d' ' -f2-))
+included_string=($(tail -n +$included_start patches/$patch_file | cut -d' ' -f2-))
 exclude_patches=""
 include_patches=""
-for patch in "${exclude_string[@]}" ; do
-        exclude_patches+="--exclude $patch "
-        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
-            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-            exit 1
-        fi
-    done
-    for patch in "${include_string[@]}" ; do
-        include_patches+="--include $patch "
-    done
+if [[ -n "$excluded_string" ]]; then
+    while read -r patch; do
+        exclude_patches+="--exclude $patch"
+    done <<< "$excluded_string"
+    if [[ " ${excluded_string[@]} " =~ " $patch " ]]; then
+        echo "\033[0;31mPatch \"$patch\" is specified both as exclude and include\033[0m"
+        return 1
+    fi
+fi
+if [[ -n "$included_string" ]]; then
+    while read -r patch; do
+        include_patches+="--include $patch"
+    done <<< "$included_string"
+fi 
+
 }
 
 function req() {  
