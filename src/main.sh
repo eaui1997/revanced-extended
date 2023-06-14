@@ -46,9 +46,10 @@ included_patches=()
 # Use awk to split exclude and include strings on spaces or newlines
 while IFS= read -r line; do
     if [[ $line == "--exclude"* ]]; then
-        excluded_patches+=("${line#--exclude}")
+        # Remove the first word '--exclude' and store each subsequent word as a separate excluded patch
+        excluded_patches+=($(sed 's/[:blank:]]*--exclude[[:blank:]]*//' <<< "$line"))
     elif [[ $line == "--include"* ]]; then
-        included_patches+=("${line#--include}")
+        # Remove the first word '--include' and store each subsequent word as a separate included patch        included_patches+=($(sed 's/^[[:blank:]]*--include[[:blank:]]*//' <<< "$line"))
     fi
 done < <(grep -E '^--exclude|--include' patches/"$patch_file" | tr -s '[:blank:]' ' ')
 
@@ -56,7 +57,7 @@ done < <(grep -E '^--exclude|--include' patches/"$patch_file" | tr -s '[:blank:]
 for patch in "${excluded_patches[@]}"; do
     if [[ " ${included_patches[@]} " =~ " $patch " ]]; then
         printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-        exit 1
+       1
     fi
 done
 
@@ -73,7 +74,6 @@ done
 
 # Output bash arguments array to command line
 printf '%s\n' "${patch_args[@]}"
-
 }
 
 function req() {  
