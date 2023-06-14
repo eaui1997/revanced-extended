@@ -40,8 +40,9 @@ function get_patches_key() {
     local patch_file="$1"
     local excluded_start=$(grep -n -m1 '--exclude' "patches/$patch_file" | cut -d':' -f1)
 local included_start=$(grep -n -m1 '--include' "patches/$patch_file" | cut -d':' -f1)
-excluded_string=($(tail -n +$excluded_start $patch_file | head -n "$(( included_start - excluded_start ))" | cut -d' ' -f2-))
-included_string=($(tail -n +$included_start patches/$patch_file | cut -d' ' -f2-))
+excluded_string=($(tail -n +$excluded_start $patch_file | head -n "$(( included_start - excluded_start ))" | sed 's/[[:space:]]/,/g' | cut -d',' -f2-))
+included_string=($(tail -n +$included_start patches/$patch_file | sed 's/[[:space:]]/,/g' | cut -d',' -f2-))
+
 exclude_patches=""
 include_patches=""
 if [[ -n "$excluded_string" ]]; then
