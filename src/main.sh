@@ -73,7 +73,7 @@ for patch in "${included_patches[@]}"; do
 done
 
 # Output bash arguments array to command line
-printf '%s\n' "${patch_args[@]}"
+printf '%s\n' "${patch_args[@]}" 
 }
 
 function req() {  
