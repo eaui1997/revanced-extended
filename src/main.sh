@@ -38,10 +38,10 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-local excluded_start=$(grep -n -m1 '--exclude' "patches/$patch_file" | cut -d':' -f1)
+    local excluded_start=$(grep -n -m1 '--exclude' "patches/$patch_file" | cut -d':' -f1)
 local included_start=$(grep -n -m1 '--include' "patches/$patch_file" | cut -d':' -f1)
-excluded_string=($(tail -n +$excluded_start $patch_file | head -n "$(( included_start - excluded_start ))"))
-included_string=($(tail -n +$included_start patches/$patch_file))
+excluded_string=($(tail -n +$excluded_start $patch_file | head -n "$(( included_start - excluded_start ))" | cut -d'=' -f2 | tr ' ' '\n'))
+included_string=($(tail -n +$included_start patches/$patch_file | cut -d'=' -f2 | tr ' ' '\n'))
 exclude_patches=""
 include_patches=""
 if [[ -n "$excluded_string" ]]; then
@@ -49,7 +49,7 @@ if [[ -n "$excluded_string" ]]; then
         exclude_patches+="--exclude $patch"
     done <<< "$excluded_string"
     if [[ " ${excluded_string[@]} " =~ " $patch " ]]; then
-        printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+        echo "\033[0;31mPatch \"$patch\" is specified both as exclude and include\033[0m"
         return 1
     fi
 fi
@@ -58,7 +58,6 @@ if [[ -n "$included_string" ]]; then
         include_patches+="--include $patch"
     done <<< "$included_string"
 fi 
-
 }
 
 function req() {  
