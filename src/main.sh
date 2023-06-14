@@ -37,7 +37,7 @@ function dl_gh() {
 }
 
 function get_patches_key() {
-    patch_file="$1"
+    local patch_file=$1
 
 # Create arrays of excluded and included patches
 excluded_patches=()
@@ -49,7 +49,8 @@ while IFS= read -r line; do
         # Remove the first word '--exclude' and store each subsequent word as a separate excluded patch
         excluded_patches+=($(sed 's/[:blank:]]*--exclude[[:blank:]]*//' <<< "$line"))
     elif [[ $line == "--include"* ]]; then
-        # Remove the first word '--include' and store each subsequent word as a separate included patch        included_patches+=($(sed 's/^[[:blank:]]*--include[[:blank:]]*//' <<< "$line"))
+        # Remove the first word '--include' and store each subsequent word as a separate included patch   
+        included_patches+=($(sed 's/^[[:blank:]]*--include[[:blank:]]*//' <<< "$line"))
     fi
 done < <(grep -E '^--exclude|--include' patches/"$patch_file" | tr -s '[:blank:]' ' ')
 
