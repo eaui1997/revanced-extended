@@ -44,20 +44,16 @@ excluded_string=($(tail -n +$excluded_start $patch_file | head -n "$(( included_
 included_string=($(tail -n +$included_start patches/$patch_file | cut -d'=' -f2 | tr ' ' '\n'))
 exclude_patches=""
 include_patches=""
-if [[ -n "$excluded_string" ]]; then
-    while read -r patch; do
-        exclude_patches+="--exclude $patch"
-    done <<< "$excluded_string"
-    if [[ " ${excluded_string[@]} " =~ " $patch " ]]; then
-        echo "\033[0;31mPatch \"$patch\" is specified both as exclude and include\033[0m"
-        return 1
-    fi
-fi
-if [[ -n "$included_string" ]]; then
-    while read -r patch; do
-        include_patches+="--include $patch"
-    done <<< "$included_string"
-fi 
+for patch in "${exclude_string[@]}" ; do
+        exclude_patches+="--exclude $patch "
+        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
+            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+            exit 1
+        fi
+    done
+    for patch in "${include_string[@]}" ; do
+        include_patches+="--include $patch "
+    done
 }
 
 function req() {  
