@@ -37,10 +37,11 @@ function dl_gh() {
 }
 
 function get_patches_key() {
-    local excluded_start=$(grep -n -m1 'EXCLUDE PATCHES' "$patch_file" | cut -d':' -f1)
-    local included_start=$(grep -n -m1 'INCLUDE PATCHES' "$patch_file" | cut -d':' -f1)
-    local excluded_patches=$(tail -n +$excluded_start $patch_file | head -n "$(( included_start - excluded_start ))"  | grep '^[^#[:blank:]]')
-    local included_patches=$(tail -n +$included_start $patch_file | grep '^[^#[:blank:]]')
+    local patch_file=$1
+    local excluded_start=$(grep -n -m1 'EXCLUDE PATCHES' "patches/$patch_file" | cut -d':' -f1)
+    local included_start=$(grep -n -m1 'INCLUDE PATCHES' "patches/$patch_file" | cut -d':' -f1)
+    export excluded_patches=$(tail -n +$excluded_start patches/$patch_file | head -n "$(( included_start - excluded_start ))"  | grep '^[^#[:blank:]]')
+    export included_patches=$(tail -n +$included_start patches/$patch_file | grep '^[^#[:blank:]]')
     patches=""
     if [[ -n "$excluded_patches" ]]; then
         while read -r patch; do
