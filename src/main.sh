@@ -52,7 +52,7 @@ while IFS= read -r line; do
         # Remove the first word '--include' and store each subsequent word as a separate included patch   
         included_patches+=($(sed 's/^[[:blank:]]*--include[[:blank:]]*//' <<< "$line"))
     fi
-done < <(grep -E '^--exclude|--include' patches/"$patch_file" | tr -s '[:blank:]' ' ')
+done < <(grep -E '^--exclude|--include' patches/"$patch_file" | tr -s '[[:blank:]]' ' ')
 
 # Check for duplicate patches in both exclude and include
 for patch in "${excluded_patches[@]}"; do
