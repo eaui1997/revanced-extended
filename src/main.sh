@@ -37,44 +37,21 @@ function dl_gh() {
 }
 
 function get_patches_key() {
-    local patch_file=$1
-
-# Create arrays of excluded and included patches
-excluded_patches=()
-included_patches=()
-
-# Use awk to split exclude and include strings on spaces or newlines
-while IFS= read -r line; do
-    if [[ $line == "--exclude"* ]]; then
-        # Remove the first word '--exclude' and store each subsequent word as a separate excluded patch
-        excluded_patches+=($(sed 's/[:blank:]]*--exclude[[:blank:]]*//' <<< "$line"))
-    elif [[ $line == "--include"* ]]; then
-        # Remove the first word '--include' and store each subsequent word as a separate included patch   
-        included_patches+=($(sed 's/^[[:blank:]]*--include[[:blank:]]*//' <<< "$line"))
-    fi
-done < <(grep -E '^--exclude|--include' patches/"$patch_file" | tr -s '[[:blank:]]' ' ')
-
-# Check for duplicate patches in both exclude and include
-for patch in "${excluded_patches[@]}"; do
-    if [[ " ${included_patches[@]} " =~ " $patch " ]]; then
-        printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-       1
-    fi
-done
-
-# Build bash arguments array for excluded and included patches
-patch_args=()
-for patch in "${excluded_patches[@]}"; do
-    patch_args+=("--exclude")
-    patch_args+=("$patch")
-done
-for patch in "${included_patches[@]}"; do
-    patch_args+=("--include")
-    patch_args+=("$patch")
-done
-
-# Output bash arguments array to command line
-printf '%s\n' "${patch_args[@]}" 
+    local patch_file="$1"
+    exclude_string=($(awk -F '--exclude' '/--exclude/{print $2}' patches/$patch_file | tr ' ' '\n'))
+    include_string=($(awk -F '--include' '/--include/{print $2}' patches/$patch_file | tr ' ' '\n'))
+    exclude_patches=""
+    include_patches=""
+    for patch in "${exclude_string[@]}" ; do
+        exclude_patches+="--exclude $patch "
+        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
+            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+            exit 1
+        fi
+    done
+    for patch in "${include_string[@]}" ; do
+        include_patches+="--include $patch "
+    done
 }
 
 function req() {  
