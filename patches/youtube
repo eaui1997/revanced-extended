@@ -1,5 +1,1 @@
-# EXCLUDE PATCHES
-custom-branding-icon-afn-red 
-custom-branding-name 
-hide-mix-playlists
-# INCLUDE PATCHES 
+--exclude custom-branding-icon-afn-red custom-branding-name hide-mix-playlists
