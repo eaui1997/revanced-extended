@@ -38,28 +38,27 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    local excluded_start=$(grep -n -m1 '--exclude' "patches/$patch_file" | cut -d':' -f1)
-    local included_start=$(grep -n -m1 '--include' "patches/$patch_file" | cut -d':' -f1)
-    excluded_string=$(tail -n +$excluded_start $patch_file | head -n "$(( included_start - excluded_start ))"  | grep '^[^--[:blank:]]')
-    exclude_string=($(awk -F '--exclude' '/--exclude/{print $2}' patches/$patch_file | tr ' ' '\n'))
-    include_string=($(awk -F '--include' '/--include/{print $2}' patches/$patch_file | tr ' ' '\n'))
-    exclude_patches=""
-    include_patches=""
-    included_string=$(tail -n +$included_start patches/$patch_file | grep '^[^--[:blank:]]')
-    if [[ -n "$excluded_string" ]]; then
-        while read -r patch; do
-            exclude_patches+="--exclude $patch"
-        done <<< "$excluded_string"
-        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
-            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-            return 1
-        fi
+local excluded_start=$(grep -n -m1 '--exclude' "patches/$patch_file" | cut -d':' -f1)
+local included_start=$(grep -n -m1 '--include' "patches/$patch_file" | cut -d':' -f1)
+excluded_string=($(tail -n +$excluded_start $patch_file | head -n "$(( included_start - excluded_start ))"))
+included_string=($(tail -n +$included_start patches/$patch_file))
+exclude_patches=""
+include_patches=""
+if [[ -n "$excluded_string" ]]; then
+    while read -r patch; do
+        exclude_patches+="--exclude $patch"
+    done <<< "$excluded_string"
+    if [[ " ${excluded_string[@]} " =~ " $patch " ]]; then
+        printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+        return 1
     fi
-    if [[ -n "$included_string" ]]; then
-        while read -r patch; do
-            include_patches+="--include $patch"
-        done <<< "$included_string"
-    fi 
+fi
+if [[ -n "$included_string" ]]; then
+    while read -r patch; do
+        include_patches+="--include $patch"
+    done <<< "$included_string"
+fi 
+
 }
 
 function req() {  
