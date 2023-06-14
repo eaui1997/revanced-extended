@@ -42,15 +42,15 @@ function get_patches_key() {
     local included_start=$(grep -n -m1 'INCLUDE PATCHES' "patches/$patch_file" | cut -d':' -f1)
     export excluded_patches=$(tail -n +$excluded_start patches/$patch_file | head -n "$(( included_start - excluded_start ))"  | grep '^[^#[:blank:]]')
     export included_patches=$(tail -n +$included_start patches/$patch_file | grep '^[^#[:blank:]]')
-    patches=""
+    patches=()
     if [[ -n "$excluded_patches" ]]; then
         while read -r patch; do
-            patches+="--exclude $patch"
+            patches+=("--exclude $patch")
         done <<< "$excluded_patches"
     fi
     if [[ -n "$included_patches" ]]; then
         while read -r patch; do
-            patches+="--include $patch"
+            patches+=("--include $patch")
         done <<< "$included_patches"
     fi
 }
@@ -198,7 +198,7 @@ function patch() {
              --apk "$base_apk" \
              --bundle "$patches_jar" \
              --merge "$integrations_apk" \
-             ${patches} \
+             ${patches[@]} \
              --keystore ./src/ks.keystore \
              --out "build/$apk_out.apk"
     else
@@ -210,7 +210,7 @@ function patch() {
                  --apk "$base_apk" \
                  --bundle "$patches_jar" \
                  --merge "$integrations_apk" \
-                 ${patches} \
+                 ${patches[@]} \
                  ${arch_map[$arch]} \
                  --keystore ./src/ks.keystore \
                  --out "build/$apk_out.apk"
