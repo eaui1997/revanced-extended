@@ -38,47 +38,20 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    exclude_started=false
-    exclude_patches=()
-    include_patches=()
-    while read -r line; do
-        if [[ $line = "--exclude"* ]]; then
-            exclude_started=true
-            IFS=' ' read -ra exclude_string <<< "${line/--exclude /}"
-        elif [[ $line = "--include"* ]]; then
-            exclude_started=false
-            IFS=' ' read -ra include_string <<< "${line/--include /}"
-        elif [[ $exclude_started = true ]]; then
-            exclude_patches+=("$line")
-        else
-            include_patches+=("$line")
-        fi
-    done < "patches/$patch_file"
-    
+    exclude_string=($(sed -n '/^--exclude/,/^--include/{/^--exclude/b;/^--include/q;p}' patches/$patch_file | sed 's/^-- //' | tr '\n' ' '))
+    include_string=($(sed -n '/^--include/,${/^--exclude/q;p}' patches/$patch_file | sed 's/^-- //' | tr '\n' ' '))
+    exclude_patches=""
+    include_patches=""
     for patch in "${exclude_string[@]}" ; do
-        exclude_patches+=("$patch")
+        exclude_patches+="--exclude $patch "
         if [[ " ${include_string[@]} " =~ " $patch " ]]; then
             printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
             exit 1
         fi
     done
     for patch in "${include_string[@]}" ; do
-        include_patches+=("$patch")
+        include_patches+="--include $patch "
     done
-
-    exclude_command=''
-    include_command=''
-
-    for patch in "${exclude_patches[@]}"; do
-        exclude_command+="--exclude $patch "
-    done
-
-    for patch in "${include_patches[@]}"; do
-        include_command+="--include $patch "
-    done
-
-    echo "$exclude_command"
-    echo "$include_command"
 }
 
 function req() {  
