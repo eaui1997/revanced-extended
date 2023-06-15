@@ -38,7 +38,9 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
+    # Read the file line by line and store it in an array
     mapfile -t lines < patches/$patch_file
+    # Initialize the variables
     exclude_patches=""
     include_patches=""
     exclude_string=()
@@ -47,8 +49,18 @@ function get_patches_key() {
     for line in "${lines[@]}" ; do
         if [[ $line == --exclude* ]]; then
             mode="exclude"
+            patches=(${line#--exclude})
+            for patch in "${patches[@]}" ; do
+                exclude_patches+="--exclude $patch "
+                exclude_string+=("$patch")
+            done
         elif [[ $line == --include* ]]; then
             mode="include"
+            patches=(${line#--include})
+            for patch in "${patches[@]}" ; do
+                include_patches+="--include $patch "
+                include_string+=("$patch")
+            done
         elif [[ -n $line ]]; then
             if [[ $mode == "exclude" ]]; then
                 exclude_patches+="--exclude $line "
@@ -66,6 +78,7 @@ function get_patches_key() {
         fi
     done
 }
+
 
 function req() {  
     wget -nv -O "$2" -U "Mozilla/5.0 (X11; Linux x86_64; rv:111.0) Gecko/20100101 Firefox/111.0" "$1" 
