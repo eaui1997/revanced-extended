@@ -38,27 +38,37 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    exclude_string=($(awk -F '--exclude' '/--exclude/{print $2}' patches/$patch_file | tr ' ' '\n'))
-    include_string=($(awk -F '--include' '/--include/{print $2}' patches/$patch_file | tr ' ' '\n'))
-    exclude_string=($(echo "${exclude_string[@]}" | sed 's/--exclude//g' | tr ' ' '\n' | sed '/^\s*$/d'))
-    include_string=($(echo "${include_string[@]}" | sed 's/--include//g' | tr ' ' '\n' | sed '/^\s*$/d'))
-    
     exclude_patches=""
     include_patches=""
-    for patch in "${exclude_string[@]}" ; do
-        if [[ "$patch" != "--include" ]]; then
-            exclude_patches+="--exclude $patch "
+    exclude_string=()
+    include_string=()
+    current_type=""
+    while read -r line; do
+        if [[ "$line" =~ ^--exclude ]]; then
+            current_type="exclude"
+            exclude_string+=($(echo "$line" | awk '{$1=""; print $0}' | tr -s ' '))
+        elif [[ "$line" =~ ^--include ]]; then
+            current_type="include"
+            include_string+=($(echo "$line" | awk '{$1=""; print $0}' | tr -s ' '))
+        else
+            if [[ "$current_type" == "exclude" ]]; then
+                exclude_patches+="--exclude $line "
+            elif [[ "$current_type" == "include" ]]; then
+                include_patches+="--include $line "
+            fi
+            if [[ " ${exclude_string[@]} " =~ " $line " && " ${include_string[@]} " =~ " $line " ]]; then
+                printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$line"
+                exit 1
+            fi
         fi
-        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
-            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-            exit 1
+    done < "patches/$patch_file"
+    if [[ "${#exclude_string[@]}" -eq 0 && "${#include_string[@]}" -eq 0 ]]; then
+        if [[ "${current_type}" == "exclude" ]]; then
+            exclude_patches+="$(awk '/--exclude/{gsub(/--exclude /,"")}1' patches/$patch_file | xargs -n1 | awk '!a[$0]++' | awk '{printf "--exclude %s ",$0}')"
+        elif [[ "${current_type}" == "include" ]]; then
+            include_patches+="$(awk '/--include/{gsub(/--include /,"")}1' patches/$patch_file | xargs -n1 | awk '!a[$0]++' | awk '{printf "--include %s ",$0}')"
         fi
-    done
-    for patch in "${include_string[@]}" ; do
-        if [[ "$patch" != "--exclude" ]]; then
-            include_patches+="--include $patch "
-        fi
-    done
+    fi
 }
 
 function req() {  
