@@ -39,7 +39,7 @@ get_apkmirror "youtube-music" "arm64-v8a"
 #get_uptodown "youtube-music"
 patch "youtube-music" "yt-music-v$version" "arm64-v8a"
 
-ls revanced-patches*.jar >> revanced-extended-version.txt
+#ls revanced-patches*.jar >> revanced-extended-version.txt
 for file in ./*.jar ./*.apk ./*.json
    do rm -f "$file"
 done
