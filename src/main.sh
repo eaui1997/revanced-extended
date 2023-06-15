@@ -38,29 +38,22 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    patches_lines=($(grep -v '^$\|^#' "patches/$patch_file"))
+    patches_string=$(sed '/^#/d;/^$/d;s/\n/ /g' "patches/$patch_file")
+    exclude_string=$(echo "$patches_string" | awk -F '--exclude ' '/--exclude /{print $2}' | awk '{print "--exclude " $1}')
+    include_string=$(echo "$patches_string" | awk -F '--include ' '/--include /{print $2}' | awk '{print "--include " $1}')
     exclude_patches=""
     include_patches=""
-    include_section=false
-    for patch_line in "${patches_lines[@]}" ; do
-        if [[ $patch_line == "--exclude"* ]]; then
-            exclude_patches+=" $patch_line"
-        else
-            if [[ $patch_line == "--include"* ]]; then
-                include_section=true
-            else
-                if [[ $include_section == true ]]; then
-                    include_patches+=" $patch_line"
-                else
-                    exclude_patches+=" $patch_line"
-                fi
-            fi
+    for patch in "${exclude_string[@]}" ; do
+        exclude_patches+="--exclude $patch "
+        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
+            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+            exit 1
         fi
     done
-    exclude_patches=$(echo $exclude_patches | xargs)
-    include_patches=$(echo $include_patches | xargs)
+    for patch in "${include_string[@]}" ; do
+        include_patches+="--include $patch "
+    done
 }
-
 
 function req() {  
     wget -nv -O "$2" -U "Mozilla/5.0 (X11; Linux x86_64; rv:111.0) Gecko/20100101 Firefox/111.0" "$1" 
