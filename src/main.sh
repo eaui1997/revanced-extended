@@ -38,21 +38,25 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    exclude_string=($(awk -F '--exclude' '/--exclude/{print $2}' patches/$patch_file | tr ' ' '\n'))
-    include_string=($(awk -F '--include' '/--include/{print $2}' patches/$patch_file | tr ' ' '\n'))
     exclude_patches=""
     include_patches=""
-    for patch in "${exclude_string[@]}" ; do
-        exclude_patches+="--exclude $patch "
-        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
-            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-            exit 1
+    is_exclude=true
+    while read -r line; do
+        if [[ $line == "--exclude"* ]]; then
+            is_exclude=true
+            continue
+        elif [[ $line == "--include"* ]]; then 
+            is_exclude=false 
+            continue
         fi
-    done
-    for patch in "${include_string[@]}" ; do
-        include_patches+="--include $patch "
-    done
+        if [[ $is_exclude == true ]]; then
+            exclude_patches+="--exclude $line " 
+        else
+            include_patches+="--include $line " 
+        fi
+    done < patches/$patch_file
 }
+
 
 function req() {  
     wget -nv -O "$2" -U "Mozilla/5.0 (X11; Linux x86_64; rv:111.0) Gecko/20100101 Firefox/111.0" "$1" 
