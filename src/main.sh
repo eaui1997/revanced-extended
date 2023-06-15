@@ -38,23 +38,27 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
+    patches_lines=($(grep -v '^$\|^#' "patches/$patch_file"))
     exclude_patches=""
     include_patches=""
-    is_exclude=true
-    while read -r line; do
-        if [[ $line == "--exclude"* ]]; then
-            is_exclude=true
-            continue
-        elif [[ $line == "--include"* ]]; then 
-            is_exclude=false 
-            continue
-        fi
-        if [[ $is_exclude == true ]]; then
-            exclude_patches+="--exclude $line " 
+    include_section=false
+    for patch_line in "${patches_lines[@]}" ; do
+        if [[ $patch_line == "--exclude"* ]]; then
+            exclude_patches+=" $patch_line"
         else
-            include_patches+="--include $line " 
+            if [[ $patch_line == "--include"* ]]; then
+                include_section=true
+            else
+                if [[ $include_section == true ]]; then
+                    include_patches+=" $patch_line"
+                else
+                    exclude_patches+=" $patch_line"
+                fi
+            fi
         fi
-    done < patches/$patch_file
+    done
+    exclude_patches=$(echo $exclude_patches | xargs)
+    include_patches=$(echo $include_patches | xargs)
 }
 
 
