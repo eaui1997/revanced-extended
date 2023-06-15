@@ -38,56 +38,20 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-
-    # Initialize variables
+    exclude_string=($(awk 'BEGIN{f=1} /^--exclude/{f=0;next} /^--include/{f=1;next}  !f{print $0}' patches/$patch_file | tr ' ' '\n'))
+    include_string=($(awk 'BEGIN{f=0} /^--include/{f=1;next}  f{print $0}' patches/$patch_file | tr ' ' '\n'))
     exclude_patches=""
     include_patches=""
-    exclude_string=()
-    include_string=()
-    current_type=""
-
-    # Loop through each line in the patch file
-    while read -r line; do
-        # If the line begins with '--exclude', switch to exclude mode
-        if [[ "$line" =~ ^--exclude ]]; then
-            current_type="exclude"
-            # Extract all patches from the line and add them to the exclude list
-            exclude_string+=($(echo "$line" | awk '{$1=""; print $0}' | tr -s ' '))
-        # If the line begins with '--include', switch to include mode
-        elif [[ "$line" =~ ^--include ]]; then
-            current_type="include"
-            # Extract all patches from the line and add them to the include list
-            include_string+=($(echo "$line" | awk '{$1=""; print $0}' | tr -s ' '))
-        # Otherwise, this must be a patch name
-        else
-            # Add the patch to the appropriate list based on the current type
-            if [[ "$current_type" == "exclude" ]]; then
-                exclude_patches+="--exclude $line "
-            elif [[ "$current_type" == "include" ]]; then
-                include_patches+="--include $line "
-            fi
-
-            # Check if the patch belongs to both exclude and include lists
-            if [[ " ${exclude_string[@]} " =~ " $line " && " ${include_string[@]} " =~ " $line " ]]; then
-                printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$line"
-                exit 1
-            fi
+    for patch in "${exclude_string[@]}" ; do
+        exclude_patches+="--exclude $patch "
+        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
+            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+            exit 1
         fi
-    done < "patches/$patch_file"
-
-    # If no patches were found in the patch file, add all patches to the appropriate list based on their initial mode
-    if [[ "${#exclude_string[@]}" -eq 0 && "${#include_string[@]}" -eq 0 ]]; then
-        if [[ "${current_type}" == "exclude" ]]; then
-            exclude_patches+="$(awk '/--exclude/{gsub(/--exclude /,"")}1' patches/$patch_file | xargs -n1 | awk '!a[$0]++' | awk '{printf "--exclude %s ",$0}')"
-        elif [[ "${current_type}" == "include" ]]; then
-            include_patches+="$(awk '/--include/{gsub(/--include /,"")}1' patches/$patch_file | xargs -n1 | awk '!a[$0]++' | awk '{printf "--include %s ",$0}')"
-        fi
-    fi
-
-    # If there were no exclude patches in the file, assume all patches are include patches
-    if [[ "${#exclude_string[@]}" -eq 0 ]]; then
-        include_patches+="$(awk '/--include/{gsub(/--include /,"")}1' patches/$patch_file | xargs -n1 | awk '!a[$0]++' | awk '{printf "--include %s ",$0}')"
-    fi
+    done
+    for patch in "${include_string[@]}" ; do
+        include_patches+="--include $patch "
+    done
 }
 
 function req() {  
