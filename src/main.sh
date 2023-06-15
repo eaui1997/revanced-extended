@@ -36,29 +36,21 @@ function dl_gh() {
     return 0
 }
 
+
 function get_patches_key() {
     local patch_file="$1"
-    exclude_string=()
-    include_string=()
+    patches=($(awk '/--exclude/,/--include/{next}/--exclude/{flag=1}/--include/{flag=0}flag && NF' patches/$patch_file))
     exclude_patches=""
     include_patches=""
-    flag=0
-    while read -r line; do
-        if [[ $line == "--exclude" ]]; then
-            continue
-        elif [[ $line == "--include" ]]; then 
-            flag=1
-            continue
-        else
-            if [[ $flag -eq 0 ]]; then
-                exclude_string+=("$line")
-                exclude_patches+="--exclude $line "
-            else
-                include_string+=("$line")
-                include_patches+="--include $line "
-            fi
+    for patch in "${patches[@]}" ; do
+        if [[ "$patch" == "--exclude"* ]]; then
+            exclude_patches+="$patch "
+        elif [[ "$patch" == "--include"* ]]; then
+            include_patches+="$patch "
         fi
-    done < patches/$patch_file
+    done
+    exclude_string=($(echo $exclude_patches | awk '{for(i=2;i<=NF;i++){print $i}}'))
+    include_string=($(echo $include_patches | awk '{for(i=2;i<=NF;i++){print $i}}'))
     for patch in "${exclude_string[@]}" ; do
         if [[ " ${include_string[@]} " =~ " $patch " ]]; then
             printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
