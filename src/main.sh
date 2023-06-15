@@ -36,28 +36,55 @@ function dl_gh() {
     return 0
 }
 
-
 function get_patches_key() {
     local patch_file="$1"
-    patches=($(awk '/--exclude/,/--include/{next}/--exclude/{flag=1}/--include/{flag=0}flag && NF' patches/$patch_file))
+    exclude_string=()
+    include_string=()
     exclude_patches=""
     include_patches=""
-    for patch in "${patches[@]}" ; do
-        if [[ "$patch" == "--exclude"* ]]; then
-            exclude_patches+="$patch "
-        elif [[ "$patch" == "--include"* ]]; then
-            include_patches+="$patch "
+    # Read the patch file line by line
+    while read -r line; do
+        # If the line starts with --exclude, split it by space and append to exclude_string
+        if [[ $line == --exclude* ]]; then
+            exclude_string+=($(echo "$line" | tr ' ' '\n'))
+        # If the line starts with --include, split it by space and append to include_string
+        elif [[ $line == --include* ]]; then
+            include_string+=($(echo "$line" | tr ' ' '\n'))
+        # If the line is not empty, check if exclude_string is empty or not
+        elif [[ -n $line ]]; then
+            if [[ ${#exclude_string[@]} -eq 0 ]]; then
+                # If exclude_string is empty, it means we are in the include section, so append to include_string
+                include_string+=("$line")
+            else
+                # If exclude_string is not empty, it means we are in the exclude section, so append to exclude_string
+                exclude_string+=("$line")
+            fi
         fi
-    done
-    exclude_string=($(echo $exclude_patches | awk '{for(i=2;i<=NF;i++){print $i}}'))
-    include_string=($(echo $include_patches | awk '{for(i=2;i<=NF;i++){print $i}}'))
+    done < patches/$patch_file # Redirect the patch file as input to the while loop
+
+    # Loop through the exclude_string array and construct the exclude_patches string
     for patch in "${exclude_string[@]}" ; do
-        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
-            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-            exit 1
+        # Skip the --exclude keyword
+        if [[ $patch != "--exclude" ]]; then
+            exclude_patches+="--exclude $patch "
+            # Check if the patch is also in the include_string array, which is an error
+            if [[ " ${include_string[@]} " =~ " $patch " ]]; then
+                printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+                exit 1
+            fi
         fi
     done
+
+    # Loop through the include_string array and construct the include_patches string
+    for patch in "${include_string[@]}" ; do
+        # Skip the --include keyword
+        if [[ $patch != "--include" ]]; then
+            include_patches+="--include $patch "
+        fi
+    done
+
 }
+
 
 function req() {  
     wget -nv -O "$2" -U "Mozilla/5.0 (X11; Linux x86_64; rv:111.0) Gecko/20100101 Firefox/111.0" "$1" 
