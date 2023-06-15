@@ -40,8 +40,10 @@ function get_patches_key() {
     local patch_file="$1"
     patch_content=$(cat patches/$patch_file)
     found_exclude=false
-    exclude_patches=""
-    include_patches=""
+    exclude_patches=()
+    exclude_words=()
+    include_patches=()
+    include_words=()
     for word in $patch_content; do
         if [[ "$word" == "--exclude" ]]; then
             found_exclude=true
@@ -51,17 +53,19 @@ function get_patches_key() {
             continue
         fi
         if [[ $found_exclude == true ]]; then
-            exclude_patches+="--exclude $word "
+            exclude_words+=("$word")
         else
-            include_patches+="--include $word "
+            include_words+=("$word")
         fi
     done
-    if [ -n "$exclude_patches" ]; then
-        exclude_patches="${exclude_patches%--include*}"
-    fi
-    if [ -n "$include_patches" ]; then
-        include_patches="${include_patches##*--include }"
-    fi
+    for exclude_word in "${exclude_words[@]}"; do
+        exclude_patches+=("--exclude $exclude_word")
+    done
+    for include_word in "${include_words[@]}"; do
+        include_patches+=("--include $include_word")
+    done
+    exclude_patches="${exclude_patches[@]}"
+    include_patches="${include_patches[@]}"
 }
 
 function req() {  
