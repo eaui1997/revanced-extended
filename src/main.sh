@@ -39,20 +39,8 @@ function dl_gh() {
 function get_patches_key() {
     local patch_file="$1"
     patches_string=$(sed '/^#/d;/^$/d;s/\n/ /g' "patches/$patch_file")
-    exclude_string=$(echo "$patches_string" | awk -F '--exclude ' '/--exclude /{print $2}' | awk '{print "--exclude " $1}')
-    include_string=$(echo "$patches_string" | awk -F '--include ' '/--include /{print $2}' | awk '{print "--include " $1}')
-    exclude_patches=""
-    include_patches=""
-    for patch in "${exclude_string[@]}" ; do
-        exclude_patches+="--exclude $patch "
-        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
-            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-            exit 1
-        fi
-    done
-    for patch in "${include_string[@]}" ; do
-        include_patches+="--include $patch "
-    done
+    exclude_patches=$(echo "$patches_string" | awk -F '--exclude ' '/--exclude /{print $2}' | awk '{print "--exclude " $1}')
+    include_patches=$(echo "$patches_string" | awk -F '--include ' '/--include /{print $2}' | awk '{print "--include " $1}')
 }
 
 function req() {  
