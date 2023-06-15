@@ -38,19 +38,32 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    exclude_string=($(sed -n '/^--exclude/,/^--include/{/^--exclude/b;/^--include/q;p}' patches/$patch_file | sed 's/^-- //' | tr '\n' ' '))
-    include_string=($(sed -n '/^--include/,${/^--exclude/q;p}' patches/$patch_file | sed 's/^-- //' | tr '\n' ' '))
+    exclude_string=()
+    include_string=()
     exclude_patches=""
     include_patches=""
+    flag=0
+    while read -r line; do
+        if [[ $line == "--exclude" ]]; then
+            continue
+        elif [[ $line == "--include" ]]; then 
+            flag=1
+            continue
+        else
+            if [[ $flag -eq 0 ]]; then
+                exclude_string+=("$line")
+                exclude_patches+="--exclude $line "
+            else
+                include_string+=("$line")
+                include_patches+="--include $line "
+            fi
+        fi
+    done < patches/$patch_file
     for patch in "${exclude_string[@]}" ; do
-        exclude_patches+="--exclude $patch "
         if [[ " ${include_string[@]} " =~ " $patch " ]]; then
             printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
             exit 1
         fi
-    done
-    for patch in "${include_string[@]}" ; do
-        include_patches+="--include $patch "
     done
 }
 
