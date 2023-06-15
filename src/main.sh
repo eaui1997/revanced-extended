@@ -204,7 +204,7 @@ function patch() {
     for file in "$cli_jar" "$integrations_apk" "$patches_jar" "$base_apk"; do
         printf "\033[0;36m->%s\033[0m\n" "$file"
     done
-    printf "\033[0;32mINCLUDE PATCHES :%s\033[0m\n\033[0;31mEXCLUDE PATCHES :%s\033[0m\n" "${include_patches}" "${exclude_patches}"
+    printf "\033[0;32mINCLUDE PATCHES :%s\033[0m\n\033[0;31mEXCLUDE PATCHES :%s\033[0m\n" "${include_words}" "${exclude_words}"
     if [[ -z "$arch" ]]; then
         shift
         java -jar "$cli_jar" \
