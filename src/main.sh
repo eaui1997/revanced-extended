@@ -50,18 +50,15 @@ function get_patches_key() {
             found_exclude=false
             continue
         fi
-
         if [[ $found_exclude == true ]]; then
             exclude_patches+="--exclude $word "
         else
             include_patches+="--include $word "
         fi
     done
-
     if [ -n "$exclude_patches" ]; then
         exclude_patches="${exclude_patches%--include*}"
     fi
-    
     if [ -n "$include_patches" ]; then
         include_patches="${include_patches##*--include }"
     fi
