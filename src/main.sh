@@ -38,24 +38,20 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    exclude_string=($(awk '/^--exclude/{for (i=2;i<=NF;i++) print $i}' patches/$patch_file))
-    include_string=($(awk '/^--include/{for (i=2;i<=NF;i++) print $i}' patches/$patch_file))
+    exclude_string=($(awk 'BEGIN{f=1} /^--exclude/{f=0;next} /^--include/{f=1;next}  !f{print $0}' patches/$patch_file | tr ' ' '\n'))
+    include_string=($(awk 'BEGIN{f=0} /^--include/{f=1;next}  f{print $0}' patches/$patch_file | tr ' ' '\n'))
     exclude_patches=""
     include_patches=""
-    if [ ${#exclude_string[@]} -gt 0 ]; then
-        for patch in "${exclude_string[@]}" ; do
-            exclude_patches+="--exclude $patch "
-            if [[ " ${include_string[@]} " =~ " $patch " ]]; then
-                printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-                exit 1
-            fi
-        done
-    fi
-    if [ ${#include_string[@]} -gt 0 ]; then
-        for patch in "${include_string[@]}" ; do
-            include_patches+="--include $patch "
-        done
-    fi
+    for patch in "${exclude_string[@]}" ; do
+        exclude_patches+="--exclude $patch "
+        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
+            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+            exit 1
+        fi
+    done
+    for patch in "${include_string[@]}" ; do
+        include_patches+="--include $patch "
+    done
 }
 
 function req() {  
