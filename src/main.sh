@@ -38,51 +38,53 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    exclude_string=()
-    include_string=()
     exclude_patches=""
     include_patches=""
-    # Read the patch file line by line
-    while read -r line; do
-        # If the line starts with --exclude, split it by space and append to exclude_string
-        if [[ $line == --exclude* ]]; then
-            exclude_string+=($(echo "$line" | tr ' ' '\n'))
-        # If the line starts with --include, split it by space and append to include_string
-        elif [[ $line == --include* ]]; then
-            include_string+=($(echo "$line" | tr ' ' '\n'))
-        # If the line is not empty, check if exclude_string is empty or not
-        elif [[ -n $line ]]; then
-            if [[ ${#exclude_string[@]} -eq 0 ]]; then
-                # If exclude_string is empty, it means we are in the include section, so append to include_string
-                include_string+=("$line")
+    while read -r line
+    do
+        if [[ $line = "--exclude"* ]]
+        then
+            exclude_list=($(echo $line | cut -d' ' -f2-))
+            for patch in "${exclude_list[@]}"
+            do
+                exclude_patches+="--exclude $patch "
+                if [[ $include_patches = *"$patch"* ]]
+                then
+                    printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+                    exit 1
+                fi
+            done
+        elif [[ $line = "--include"* ]]
+        then
+            include_list=($(echo $line | cut -d' ' -f2-))
+            for patch in "${include_list[@]}"
+            do
+                include_patches+="--include $patch "
+            done
+            while read -r next_line && [[ $next_line != "--"* ]]
+            do
+                include_patches+="--include $next_line "
+            done
+            if [[ $next_line = "--include"* ]]
+            then
+                line=$next_line
+                continue
+            elif [[ $next_line != "--"* ]]
+            then
+                line=$next_line
             else
-                # If exclude_string is not empty, it means we are in the exclude section, so append to exclude_string
-                exclude_string+=("$line")
+                break
             fi
-        fi
-    done < patches/$patch_file # Redirect the patch file as input to the while loop
-
-    # Loop through the exclude_string array and construct the exclude_patches string
-    for patch in "${exclude_string[@]}" ; do
-        # Skip the --exclude keyword
-        if [[ $patch != "--exclude" ]]; then
+        fi  
+    done < "patches/$patch_file"
+    if [[ -z $include_patches ]]
+    then
+        exclude_string=($(awk -F '--exclude' '/--exclude/{print $2}' patches/$patch_file | tr ' ' '\n'))
+        exclude_patches=""
+        for patch in "${exclude_string[@]}" ; do
             exclude_patches+="--exclude $patch "
-            # Check if the patch is also in the include_string array, which is an error
-            if [[ " ${include_string[@]} " =~ " $patch " ]]; then
-                printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-                exit 1
-            fi
-        fi
-    done
-
-    # Loop through the include_string array and construct the include_patches string
-    for patch in "${include_string[@]}" ; do
-        # Skip the --include keyword
-        if [[ $patch != "--include" ]]; then
-            include_patches+="--include $patch "
-        fi
-    done
-
+        done
+    fi
 }
 
 
