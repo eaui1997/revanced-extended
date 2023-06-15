@@ -38,55 +38,34 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
+    mapfile -t lines < patches/$patch_file
     exclude_patches=""
     include_patches=""
-    include_started=false
-    while read -r line; do
-        if [[ $line = "--exclude"* ]]; then
-            exclude_list=($(echo $line | cut -d' ' -f2-))
-            for patch in "${exclude_list[@]}"
-            do
-                exclude_patches+="--exclude $patch "
-                if [[ " ${include_list[@]} " =~ " $patch " ]]; then
-                    printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-                    exit 1
-                fi
-            done
-        elif [[ $line = "--include"* || $line = "" ]]; then
-            include_started=true
-            while read -r next_line && [[ $next_line != "--"* && $next_line != "" ]]; do
-                include_list+=("$next_line")
-            done
-            if [[ $next_line = "--exclude"* ]]; then
-                exclude_list=($(echo $next_line | cut -d' ' -f2-))
-                for patch in "${exclude_list[@]}"
-                do
-                    exclude_patches+="--exclude $patch "
-                    if [[ " ${include_list[@]} " =~ " $patch " ]]; then
-                        printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-                        exit 1
-                    fi
-                done
-            else
-                for patch in "${include_list[@]}"
-                do
-                    include_patches+="--include $patch "
-                done
+    exclude_string=()
+    include_string=()
+    mode="exclude"
+    for line in "${lines[@]}" ; do
+        if [[ $line == --exclude* ]]; then
+            mode="exclude"
+        elif [[ $line == --include* ]]; then
+            mode="include"
+        elif [[ -n $line ]]; then
+            if [[ $mode == "exclude" ]]; then
+                exclude_patches+="--exclude $line "
+                exclude_string+=("$line")
+            elif [[ $mode == "include" ]]; then
+                include_patches+="--include $line "
+                include_string+=("$line")
             fi
-            if [[ $next_line != "--exclude"* && $next_line != "" ]]; then
-                line=$next_line
-            fi
-        fi  
-    done < "patches/$patch_file"
-    if [[ $include_started = false ]]; then
-        exclude_list=($(awk -F '--exclude' '/--exclude/{print $2}' patches/$patch_file | tr ' ' '\n'))
-        for patch in "${exclude_list[@]}"
-        do
-            exclude_patches+="--exclude $patch "
-        done
-    fi
+        fi
+    done
+    for patch in "${exclude_string[@]}" ; do
+        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
+            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+            exit 1
+        fi
+    done
 }
-
 
 function req() {  
     wget -nv -O "$2" -U "Mozilla/5.0 (X11; Linux x86_64; rv:111.0) Gecko/20100101 Firefox/111.0" "$1" 
