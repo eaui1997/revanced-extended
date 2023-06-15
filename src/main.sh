@@ -38,33 +38,20 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    patch_content=$(cat patches/$patch_file)
-    found_exclude=false
+    exclude_string=($(awk -F '--exclude' '/--exclude/{print $2}' patches/$patch_file | tr ' ' '\n'))
+    include_string=($(awk -F '--include' '/--include/{print $2}' patches/$patch_file | tr ' ' '\n'))
     exclude_patches=""
     include_patches=""
-    for word in $patch_content; do
-        if [[ "$word" == "--exclude" ]]; then
-            found_exclude=true
-            continue
-        elif [[ "$word" == "--include" ]]; then
-            found_exclude=false
-            continue
-        fi
-
-        if [[ $found_exclude == true ]]; then
-            exclude_patches+="--exclude $word "
-        else
-            include_patches+="--include $word "
+    for patch in "${exclude_string[@]}" ; do
+        exclude_patches+="--exclude $patch "
+        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
+            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+            exit 1
         fi
     done
-
-    if [ -n "$exclude_patches" ]; then
-        exclude_patches="${exclude_patches%--include*}"
-    fi
-    
-    if [ -n "$include_patches" ]; then
-        include_patches="${include_patches##*--include }"
-    fi
+    for patch in "${include_string[@]}" ; do
+        include_patches+="--include $patch "
+    done
 }
 
 function req() {  
@@ -203,7 +190,7 @@ function patch() {
     for file in "$cli_jar" "$integrations_apk" "$patches_jar" "$base_apk"; do
         printf "\033[0;36m->%s\033[0m\n" "$file"
     done
-    printf "\033[0;32mINCLUDE PATCHES :%s\033[0m\n\033[0;31mEXCLUDE PATCHES :%s\033[0m\n" "${include_words[*]}" "${exclude_words[*]}"
+    printf "\033[0;32mINCLUDE PATCHES :%s\033[0m\n\033[0;31mEXCLUDE PATCHES :%s\033[0m\n" "${include_string[*]}" "${exclude_string[*]}"
     if [[ -z "$arch" ]]; then
         shift
         java -jar "$cli_jar" \
