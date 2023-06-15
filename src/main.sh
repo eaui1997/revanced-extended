@@ -40,48 +40,48 @@ function get_patches_key() {
     local patch_file="$1"
     exclude_patches=""
     include_patches=""
-    while read -r line
-    do
-        if [[ $line = "--exclude"* ]]
-        then
+    include_started=false
+    while read -r line; do
+        if [[ $line = "--exclude"* ]]; then
             exclude_list=($(echo $line | cut -d' ' -f2-))
             for patch in "${exclude_list[@]}"
             do
                 exclude_patches+="--exclude $patch "
-                if [[ $include_patches = *"$patch"* ]]
-                then
+                if [[ " ${include_list[@]} " =~ " $patch " ]]; then
                     printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
                     exit 1
                 fi
             done
-        elif [[ $line = "--include"* ]]
-        then
-            include_list=($(echo $line | cut -d' ' -f2-))
-            for patch in "${include_list[@]}"
-            do
-                include_patches+="--include $patch "
+        elif [[ $line = "--include"* || $line = "" ]]; then
+            include_started=true
+            while read -r next_line && [[ $next_line != "--"* && $next_line != "" ]]; do
+                include_list+=("$next_line")
             done
-            while read -r next_line && [[ $next_line != "--"* ]]
-            do
-                include_patches+="--include $next_line "
-            done
-            if [[ $next_line = "--include"* ]]
-            then
-                line=$next_line
-                continue
-            elif [[ $next_line != "--"* ]]
-            then
-                line=$next_line
+            if [[ $next_line = "--exclude"* ]]; then
+                exclude_list=($(echo $next_line | cut -d' ' -f2-))
+                for patch in "${exclude_list[@]}"
+                do
+                    exclude_patches+="--exclude $patch "
+                    if [[ " ${include_list[@]} " =~ " $patch " ]]; then
+                        printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+                        exit 1
+                    fi
+                done
             else
-                break
+                for patch in "${include_list[@]}"
+                do
+                    include_patches+="--include $patch "
+                done
+            fi
+            if [[ $next_line != "--exclude"* && $next_line != "" ]]; then
+                line=$next_line
             fi
         fi  
     done < "patches/$patch_file"
-    if [[ -z $include_patches ]]
-    then
-        exclude_string=($(awk -F '--exclude' '/--exclude/{print $2}' patches/$patch_file | tr ' ' '\n'))
-        exclude_patches=""
-        for patch in "${exclude_string[@]}" ; do
+    if [[ $include_started = false ]]; then
+        exclude_list=($(awk -F '--exclude' '/--exclude/{print $2}' patches/$patch_file | tr ' ' '\n'))
+        for patch in "${exclude_list[@]}"
+        do
             exclude_patches+="--exclude $patch "
         done
     fi
