@@ -38,24 +38,37 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    exclude_string=($(awk '/--exclude/{flag=1;next}/--include/{flag=0}flag' patches/$patch_file))
-    include_string=($(awk '/--include/{flag=1;next}flag' patches/$patch_file))
     exclude_patches=""
     include_patches=""
-    for patch in "${exclude_string[@]}" ; do
-        if [[ "$patch" == "--exclude" ]] ; then
-        else
-            exclude_patches+="--exclude $patch "
-            if [[ " ${include_string[@]} " =~ " $patch " ]]; then
-                printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-                exit 1
+    exclude_flag=0
+    while IFS= read -r line; do
+        if [[ "$line" == "--exclude"* ]]; then
+            exclude_flag=1
+            include_flag=0
+            patches=${line#"--exclude"}
+            exclude_patches+=" --exclude ${patches}"
+        elif [[ "$line" == "--include"* ]]; then
+            exclude_flag=0
+            include_flag=1
+            patches=${line#"--include"}
+            include_patches+=" --include ${patches}"
+        elif [[ "$line" != "" ]]; then
+            if (( exclude_flag == 1 )); then
+                exclude_patches+=" ${line}"
+            elif (( include_flag == 1 )); then
+                include_patches+=" ${line}"
             fi
         fi
-    done
-    for patch in "${include_string[@]}" ; do
-        if [[ "$patch" == "--include" ]] ; then
-        else
-            include_patches+="--include $patch "
+    done < "patches/$patch_file"
+    if [[ -z ${include_patches// } ]]; then
+        include_patches=${exclude_patches}
+    fi
+    exclude_string=($(echo ${exclude_patches} | tr ' ' '\n'))
+    include_string=($(echo ${include_patches} | tr ' ' '\n'))
+    for patch in "${exclude_string[@]}" ; do
+        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
+            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+            exit 1
         fi
     done
 }
