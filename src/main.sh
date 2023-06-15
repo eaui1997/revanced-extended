@@ -38,37 +38,25 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    file_content=($(cat patches/$patch_file))
-    exclude_string=()
-    include_string=()
+    exclude_string=($(awk '/^--exclude/{for (i=2;i<=NF;i++) print $i}' patches/$patch_file))
+    include_string=($(awk '/^--include/{for (i=2;i<=NF;i++) print $i}' patches/$patch_file))
     exclude_patches=""
     include_patches=""
-    section="exclude"
-    for line in "${file_content[@]}" ; do
-        if [[ $line == "--exclude" ]]; then
-            section="exclude"
-        elif [[ $line == "--include" ]]; then
-            section="include"
-        else
-            if [[ $section == "exclude" ]]; then
-                exclude_string+=("$line")
-            elif [[ $section == "include" ]]; then
-                include_string+=("$line")
+    if [ ${#exclude_string[@]} -gt 0 ]; then
+        for patch in "${exclude_string[@]}" ; do
+            exclude_patches+="--exclude $patch "
+            if [[ " ${include_string[@]} " =~ " $patch " ]]; then
+                printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+                exit 1
             fi
-        fi
-    done
-    for patch in "${exclude_string[@]}" ; do
-        exclude_patches+="--exclude $patch "
-        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
-            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-            exit 1
-        fi
-    done
-    for patch in "${include_string[@]}" ; do
-        include_patches+="--include $patch "
-    done
+        done
+    fi
+    if [ ${#include_string[@]} -gt 0 ]; then
+        for patch in "${include_string[@]}" ; do
+            include_patches+="--include $patch "
+        done
+    fi
 }
-
 
 function req() {  
     wget -nv -O "$2" -U "Mozilla/5.0 (X11; Linux x86_64; rv:111.0) Gecko/20100101 Firefox/111.0" "$1" 
