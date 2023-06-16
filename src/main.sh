@@ -38,11 +38,13 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    mapfile -t lines < patches/$patch_file
+    file_content=($(cat patches/$patch_file))
     exclude_string=()
     include_string=()
+    exclude_patches=""
+    include_patches=""
     flag=""
-    for line in "${lines[@]}"; do
+    for line in "${file_content[@]}"; do
         if [[ $line == --exclude* ]]; then
             flag="exclude"
             exclude_string+=(${line#--exclude})
@@ -57,8 +59,6 @@ function get_patches_key() {
             fi
         fi
     done
-    exclude_patches=""
-    include_patches=""
     for patch in "${exclude_string[@]}" ; do
         exclude_patches+="--exclude $patch "
         if [[ " ${include_string[@]} " =~ " $patch " ]]; then
