@@ -63,12 +63,13 @@ function get_patches_key() {
         exclude_patches+="--exclude $patch "
         if [[ " ${include_string[@]} " =~ " $patch " ]]; then
             printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-            exit 1
+            return 1
         fi
     done
     for patch in "${include_string[@]}" ; do
         include_patches+="--include $patch "
     done
+    return 0
 }
 
 function req() {  
