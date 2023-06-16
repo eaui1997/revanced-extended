@@ -43,6 +43,7 @@ function get_patches_key() {
     include_string=()
     exclude_patches=""
     include_patches=""
+    section="exclude"
     for line in "${file_content[@]}" ; do
         if [[ $line == "--exclude" ]]; then
             section="exclude"
