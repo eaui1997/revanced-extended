@@ -43,7 +43,6 @@ function get_patches_key() {
     include_string=()
     exclude_patches=""
     include_patches=""
-    section="exclude"
     for line in "${file_content[@]}" ; do
         if [[ $line == "--exclude" ]]; then
             section="exclude"
@@ -68,7 +67,6 @@ function get_patches_key() {
         include_patches+="--include $patch "
     done
 }
-
 
 function req() {  
     wget -nv -O "$2" -U "Mozilla/5.0 (X11; Linux x86_64; rv:111.0) Gecko/20100101 Firefox/111.0" "$1" 
