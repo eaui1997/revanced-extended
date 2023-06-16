@@ -38,33 +38,35 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    file_content=($(cat patches/$patch_file))
-    exclude_string=()
-    include_string=()
+    exclude_string=($(awk -F '--exclude' '/--exclude/{print $2}' patches/$patch_file | tr -d '[:space:]'))
+    include_string=($(awk -F '--include' '/--include/{print $2}' patches/$patch_file | tr -d '[:space:]'))
     exclude_patches=""
     include_patches=""
-    section="exclude"
-    for line in "${file_content[@]}" ; do
-        if [[ $line == "--exclude" ]]; then
-            section="exclude"
-        elif [[ $line == "--include" ]]; then
-            section="include"
-        else
-            if [[ $section == "exclude" ]]; then
-                exclude_string+=("$line")
-            elif [[ $section == "include" ]]; then
-                include_string+=("$line")
-            fi
-        fi
-    done
+    in_include=false
     for patch in "${exclude_string[@]}" ; do
-        exclude_patches+="--exclude $patch "
+        if [[ "$patch" == "--include" ]]; then
+            in_include=true
+            continue
+        elif [[ "$patch" == "" ]]; then
+            continue
+        fi
+        if $in_include; then
+            include_patches+="--include $patch "
+            include_string+=($patch)
+        else
+            exclude_patches+="--exclude $patch "
+        fi
         if [[ " ${include_string[@]} " =~ " $patch " ]]; then
             printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
             exit 1
         fi
     done
     for patch in "${include_string[@]}" ; do
+        if [[ "$patch" == "--include" ]]; then
+            continue
+        elif [[ "$patch" == "" ]]; then
+            continue
+        fi
         include_patches+="--include $patch "
     done
 }
