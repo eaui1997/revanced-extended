@@ -38,37 +38,33 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    file_content=($(cat patches/$patch_file))
-    exclude_string=()
-    include_string=()
-    exclude_patches=""
-    include_patches=""
-    section="exclude"
-    for line in "${file_content[@]}" ; do
-        if [[ $line == "--exclude" ]]; then
-            section="exclude"
-        elif [[ $line == "--include" ]]; then
-            section="include"
-        else
-            if [[ $section == "exclude" ]]; then
-                exclude_string+=("$line")
-            elif [[ $section == "include" ]]; then
-                include_string+=("$line")
-            fi
-        fi
-    done
-    for patch in "${exclude_string[@]}" ; do
-        exclude_patches+="--exclude $patch "
-        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
-            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-            exit 1
-        fi
-    done
-    for patch in "${include_string[@]}" ; do
-        include_patches+="--include $patch "
+    local patches=()
+    local is_exclude=true
+    export exclude_patches=""
+    export include_patches=""
+    readarray -t patches < "$patch_file"
+    for line in "${patches[@]}"; do
+        case "$line" in
+            "--exclude")
+                is_exclude=true
+                ;;
+            "--include")
+                is_exclude=false
+                ;;
+            *)
+                if [[ "$line" =~ [^a-zA-Z0-9_.-] ]]; then
+                    echo "Error: invalid patch name \"$line\"" >&2
+                    exit 1
+                fi
+                if [[ "$is_exclude" == true ]]; then
+                    exclude_patches+="--exclude \"$line\" "
+                else
+                    include_patches+="--include \"$line\" "
+                fi
+                ;;
+        esac
     done
 }
-
 
 function req() {  
     wget -nv -O "$2" -U "Mozilla/5.0 (X11; Linux x86_64; rv:111.0) Gecko/20100101 Firefox/111.0" "$1" 
