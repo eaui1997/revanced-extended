@@ -39,38 +39,38 @@ function dl_gh() {
 function get_patches_key() {
     local patch_file="$1"
     patch_content=($(cat patches/$patch_file))
-    exclude_string=()
-    include_string=()
     exclude_patches=""
     include_patches=""
-    flag=""
-    for line in "${patch_content[@]}"; do
+    exclude_string=()
+    include_string=()
+    flag=0
+    for line in "${patch_content[@]}" ; do
         if [[ $line == --exclude* ]]; then
-            flag="exclude"
-            exclude_string+=(${line#--exclude})
-        elif [[ $line == --include* ]]; then
-            flag="include"
-            include_string+=(${line#--include})
-        elif [[ -n $line && $line != --* ]]; then
-            if [[ $flag == "exclude" ]]; then
-                exclude_string+=($line)
-            elif [[ $flag == "include" ]]; then
-                include_string+=($line)
-            fi
+            flag=1
+            continue
+        fi
+        if [[ $line == --include* ]]; then
+            flag=2
+            continue
+        fi
+        if [[ $flag -eq 1 ]]; then
+            exclude_string+=("$line")
+            exclude_patches+="--exclude $line "
+        fi
+        if [[ $flag -eq 2 ]]; then
+            include_string+=("$line")
+            include_patches+="--include $line "
         fi
     done
     for patch in "${exclude_string[@]}" ; do
-        exclude_patches+="--exclude $patch "
         if [[ " ${include_string[@]} " =~ " $patch " ]]; then
             printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
             return 1
         fi
     done
-    for patch in "${include_string[@]}" ; do
-        include_patches+="--include $patch "
-    done
     return 0
 }
+
 
 function req() {  
     wget -nv -O "$2" -U "Mozilla/5.0 (X11; Linux x86_64; rv:111.0) Gecko/20100101 Firefox/111.0" "$1" 
