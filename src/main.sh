@@ -38,38 +38,52 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    patch_content=($(cat patches/$patch_file))
-    exclude_string=()
-    include_string=()
+    exclude_start=0
+    include_start=0
     exclude_patches=""
     include_patches=""
-    flag=""
-    for line in "${patch_content[@]}"; do
-        if [[ $line == --exclude* ]]; then
-            flag="exclude"
-            exclude_string+=(${line#--exclude})
-        elif [[ $line == --include* ]]; then
-            flag="include"
-            include_string+=(${line#--include})
-        elif [[ -n $line && $line != --* ]]; then
-            if [[ $flag == "exclude" ]]; then
-                exclude_string+=($line)
-            elif [[ $flag == "include" ]]; then
-                include_string+=($line)
+    
+    # Find the position of --exclude and --include
+    exclude_pos=$(grep -w --line-number -- --exclude patches/$patch_file | cut -d: -f1)
+    include_pos=$(grep -w --line-number -- --include patches/$patch_file | cut -d: -f1)
+    
+    # If only --exclude is present, all patches are excluded
+    if [ -n "$exclude_pos" ] && [ -z "$include_pos" ]; then
+        exclude_start=$((exclude_pos+1))
+        exclude_end=$(wc -l patches/$patch_file | awk '{print $1}')
+        exclude_string=($(tail -n +$exclude_start patches/$patch_file | tr ' ' '\n'))
+        for patch in "${exclude_string[@]}" ; do
+            exclude_patches+="--exclude $patch "
+        done
+    
+    # If only --include is present, all patches are included
+    elif [ -z "$exclude_pos" ] && [ -n "$include_pos" ]; then
+        include_start=$((include_pos+1))
+        include_end=$(wc -l patches/$patch_file | awk '{print $1}')
+        include_string=($(tail -n +$include_start patches/$patch_file | tr ' ' '\n'))
+        for patch in "${include_string[@]}" ; do
+            include_patches+="--include $patch "
+        done
+    
+    # If both --exclude and --include are present
+    elif [ -n "$exclude_pos" ] && [ -n "$include_pos" ]; then
+        exclude_start=$((exclude_pos+1))
+        exclude_end=$((include_pos-1))
+        include_start=$((include_pos+1))
+        include_end=$(wc -l patches/$patch_file | awk '{print $1}')
+        exclude_string=($(awk "NR>=$exclude_start && NR<=$exclude_end" patches/$patch_file | tr ' ' '\n'))
+        include_string=($(awk "NR>=$include_start && NR<=$include_end" patches/$patch_file | tr ' ' '\n'))
+        for patch in "${exclude_string[@]}" ; do
+            exclude_patches+="--exclude $patch "
+            if [[ " ${include_string[@]} " =~ " $patch " ]]; then
+                printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
+                exit 1
             fi
-        fi
-    done
-    for patch in "${exclude_string[@]}" ; do
-        exclude_patches+="--exclude $patch "
-        if [[ " ${include_string[@]} " =~ " $patch " ]]; then
-            printf "\033[0;31mPatch \"%s\" is specified both as exclude and include\033[0m\n" "$patch"
-            return 1
-        fi
-    done
-    for patch in "${include_string[@]}" ; do
-        include_patches+="--include $patch "
-    done
-    return 0
+        done
+        for patch in "${include_string[@]}" ; do
+            include_patches+="--include $patch "
+        done
+    fi
 }
 
 function req() {  
