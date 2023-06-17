@@ -38,7 +38,7 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    patch_content=($(cat patches/$patch_file))
+    patch_content=($(cat ./patches/$patch_file))
     exclude_patches=""
     include_patches=""
     exclude_string=()
@@ -70,7 +70,6 @@ function get_patches_key() {
     done
     return 0
 }
-
 
 function req() {  
     wget -nv -O "$2" -U "Mozilla/5.0 (X11; Linux x86_64; rv:111.0) Gecko/20100101 Firefox/111.0" "$1" 
