@@ -38,7 +38,7 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    patch_content=($(cat patches/$patch_file))
+    patch_content=($(cat ./patches/$patch_file))
     exclude_string=()
     include_string=()
     exclude_patches=""
