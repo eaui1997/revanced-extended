@@ -9,9 +9,9 @@ function check_new_patch() {
     ls revanced-patches*.jar >> new.txt
     rm -f revanced-patches*.jar
     release=$(curl -sL "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest")
-    asset=$(echo "$release" | jq -r --arg txt_name "$txt_name" '.assets[] | select(.name == "$txt_name-version.txt") | .browser_download_url')
+    asset=$(echo "$release" | jq -r --arg txt_name "$txt_name" '.assets[] | select(.name == "${txt_name}-version.txt") | .browser_download_url')
     curl -sLO "$asset"
-    if diff -q $txt_name-version.txt new.txt >/dev/null
+    if diff -q ${txt_name}-version.txt new.txt >/dev/null
         then
             rm -f ./*.txt
             printf "\033[0;31mOld patch!!! Not build\033[0m\n"
