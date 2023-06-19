@@ -3,9 +3,10 @@
 # Revanced Extended build
 source ./src/main.sh
 
+# Check patch
 check_new_patch "inotia00" "revanced-extended"
 
-#Download Revanced Extended patches 
+# Download Revanced Extended patches 
 dl_gh "inotia00" "revanced-patches revanced-cli revanced-integrations" "latest"
 
 # Patch YouTube Extended
@@ -22,7 +23,5 @@ get_apkmirror "youtube-music" "arm64-v8a"
 #get_uptodown "youtube-music"
 patch "youtube-music" "yt-music-v$version" "arm64-v8a"
 
-ls revanced-patches*.jar >> revanced-extended-version.txt
-for file in ./*.jar ./*.apk ./*.json
-   do rm -f "$file"
-done
+# Finish patch
+finish_patch "revanced-extended"
