@@ -1,5 +1,27 @@
 #!/bin/bash
 
+function check_new_patch() {
+    local user=$1
+    local txt_name=$2
+    release=$(curl -sL "https://api.github.com/repos/$user/revanced-patches/releases/latest")
+    asset=$(echo "$release" | jq -r '.assets[] | select(.name | test("revanced-patches.*\\.jar$")) | .browser_download_url')
+    curl -sLO "$asset"
+    ls revanced-patches*.jar >> new.txt
+    rm -f revanced-patches*.jar
+    release=$(curl -sL "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest")
+    asset=$(echo "$release" | jq -r --arg txt_name "$txt_name" '.assets[] | select(.name == "$txt_name-version.txt") | .browser_download_url')
+    curl -sLO "$asset"
+    if diff -q $txt_name-version.txt new.txt >/dev/null
+        then
+            rm -f ./*.txt
+            printf "\033[0;31mOld patch!!! Not build\033[0m\n"
+            exit 0
+        else
+            printf "\033[0;32mBuild...\033[0m\n"
+            rm -f ./*.txt
+     fi
+}
+
 function dl_gh() {
     local user=$1
     local repos=$2
