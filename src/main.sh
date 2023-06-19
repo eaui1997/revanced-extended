@@ -272,3 +272,11 @@ function patch() {
     done
     rm -f ./"$base_apk"
 }
+
+function finish_patch() {
+    local txt_name=$1
+    ls revanced-patches*.jar >> $txt_name-version.txt
+    for file in ./*.jar ./*.apk ./*.json
+        do rm -f "$file"
+    done
+}
