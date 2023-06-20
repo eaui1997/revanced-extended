@@ -285,10 +285,11 @@ function split_apk() {
     source ./src/--rip-lib.info
     local apk_name=$1
     for arch in "${!arch_map[@]:0:4}" ; do
+        rip_lib="${arch_map[$arch]}"
         java -jar revanced-cli*.jar \
         --apk ./build/$apk_name.apk \
         --bundle revanced-patches*.jar \
-        ---rip-lib "${arch_map[$arch]}" \
+        $rip_lib \
         --keystore ./src/ks.keystore \
         --out ./build/$apk_name-$arch.apk
     done
