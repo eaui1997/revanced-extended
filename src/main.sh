@@ -284,13 +284,14 @@ function finish_patch() {
 function split_apk() {
     source ./src/--rip-lib.info
     local apk_name=$1
-    local arch=$2
     local patches_jar=$(find -name "revanced-patches*.jar" -print -quit)
     local cli_jar=$(find -name "revanced-cli*.jar" -print -quit)
-    java -jar "$cli_jar" \
-                 --apk "build/$apk_name.apk" \
-                 --bundle "$patches_jar" \
-                 ${arch_map[$arch]} \
-                 --keystore ./src/ks.keystore \
-                 --out "build/$apk_name-$arch.apk"
+    for arch in "arm64-v8a" "armeabi-v7a" "x86" "x86_64" ; do
+        java -jar "$cli_jar" \
+             --apk "build/$apk_name.apk" \
+             --bundle "$patches_jar" \
+             ${arch_map[$arch]} \
+             --keystore ./src/ks.keystore \
+             --out "build/$apk_name-$arch.apk"
+    done
 }
