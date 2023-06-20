@@ -1,8 +1,0 @@
-#!/bin/bash
-vars_to_unset=(
-        "version"
-        "exclude_patches"
-        "include_patches"
-        "exclude_string"
-        "include_string"
-)
