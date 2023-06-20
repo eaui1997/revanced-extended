@@ -209,7 +209,6 @@ function get_ver() {
 
 function patch() {
     source ./src/--rip-lib.info
-    source ./src/unset.info
     local apk_name=$1
     local apk_out=$2
     local arch=$3
@@ -259,6 +258,13 @@ function patch() {
         fi
     fi
     printf "\033[0;32mPatch \033[0;31m\"%s\" \033[0;32mis finished!\033[0m\n" "$apk_out"
+    vars_to_unset=(
+        "version"
+        "exclude_patches"
+        "include_patches"
+        "exclude_string"
+        "include_string"
+    )
     for varname in "${vars_to_unset[@]}"; do
         if [[ -v "$varname" ]]; then
             unset "$varname"
@@ -277,11 +283,10 @@ function finish_patch() {
 
 function split_apk() {
     source ./src/--rip-lib.info
-    source ./src/arches.info
     local apk_name=$1
     local patches_jar=$(find -name "revanced-patches*.jar" -print -quit)
     local cli_jar=$(find -name "revanced-cli*.jar" -print -quit)
-    for arch in "${arches_to_split[@]}" ; do
+    for arch in "arm64-v8a" "armeabi-v7a" "x86" "x86_64" ; do
         printf "\033[0;33mSplitting \033[0;31m\"%s\" \033[0;33m to \033[0;31m\"%s\" \033[0;33m\n" "$apk_name" "$apk_name-$arch"
         java -jar "$cli_jar" \
              --apk "build/$apk_name.apk" \
