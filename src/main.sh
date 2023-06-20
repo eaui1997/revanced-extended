@@ -284,12 +284,13 @@ function finish_patch() {
 function split_apk() {
     source ./src/--rip-lib.info
     local app_name=$1
-    local arch="$2"
-    local rip_lib="$3"
-    java -jar revanced-cli*.jar \
-        --apk ./build/youtube.apk \
-        --bundle revanced-patches*.jar \
-        $rip_lib \
-        --keystore ./src/ks.keystore \
-        --out ./build/$app_name-$arch.apk
+    for arch in "${!arch_map[@]:0:4}"; do
+        rip_lib="${arch_map[$arch]}"
+        java -jar revanced-cli*.jar \
+             --apk ./build/youtube.apk \
+             --bundle revanced-patches*.jar \
+             $rip_lib \
+             --keystore ./src/ks.keystore \
+             --out ./build/$app_name-$arch.apk
+    done
 }
