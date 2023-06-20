@@ -287,6 +287,7 @@ function split_apk() {
     for arch in "${!arch_map[0:4]}" ; do
         java -jar revanced-cli*.jar \
         --apk ./build/$apk_name.apk \
+        --bundle revanced-patches*.jar \
         ${arch_map[$arch]} \
         --keystore ./src/ks.keystore \
         --out ./build/$apk_name-$arch.apk
