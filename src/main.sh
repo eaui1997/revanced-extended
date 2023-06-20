@@ -278,22 +278,17 @@ function finish_patch() {
 function split_apk() {
     source ./src/--rip-lib.info
     local apk_name=$1
-    local base_apk=$(find -name "./build/$apk_name.apk" -print -quit)
-    if [[ ! -f "$base_apk" ]]; then
-        printf "\033[0;31mError: APK file not found\033[0m\n"
-        return 1
-    fi
     local patches_jar=$(find -name "revanced-patches*.jar" -print -quit)
     local cli_jar=$(find -name "revanced-cli*.jar" -print -quit)
     if [[ -z "$patches_jar" ]] || [[ -z "$cli_jar" ]]; then
         printf "\033[0;31mError: patches files not found\033[0m\n"
-        return 1
+        return 1 
     fi
     archs=("arm64-v8a" "armeabi-v7a" "x86" "x86_64")
     for arch in "${archs[@]}"; do
         printf "\033[0;33mSplitting \033[0;31m\"%s\" \033[0;33m to \033[0;31m\"%s\" \033[0;33m\n" "$apk_name" "$apk_name-$arch"
         java -jar "$cli_jar" \
-             --apk "$base_apk" \
+             --apk "build/$apk_name.apk" \
              --bundle "$patches_jar" \
              ${arch_map[$arch]} \
              --keystore ./src/ks.keystore \
