@@ -31,5 +31,5 @@ dl_gh "j-hc" "revanced-cli" "latest"
 dl_gh "revanced" "revanced-patches" "latest"
 for arch in "${!arch_map[@]}"; do
   rip_lib="${arch_map[$arch]}"
-  split_apk "youtube-revanced-extended" "$arch" "$rip_lib"
+  split_apk "youtube-revanced-extended"
 done
