@@ -1,5 +1,5 @@
 #!/bin/bash
-source ./src/--rip-lib.info
+
 function check_new_patch() {
     local user=$1
     local txt_name=$2
@@ -208,6 +208,7 @@ function get_ver() {
 }
 
 function patch() {
+    source ./src/--rip-lib.info
     local apk_name=$1
     local apk_out=$2
     local arch=$3
@@ -281,14 +282,15 @@ function finish_patch() {
 }
 
 function split_apk() {
-    local app_name=$1
-    for arch in "${!arch_map[@]:0:4}"; do
-        rip_lib="${arch_map[$arch]}"
-        java -jar revanced-cli*.jar \
-             --apk ./build/youtube.apk \
-             --bundle revanced-patches*.jar \
-             $rip_lib \
-             --keystore ./src/ks.keystore \
-             --out ./build/$app_name-$arch.apk
-    done
+    source ./src/--rip-lib.info
+    local apk_name=$1
+    local arch=$2
+    local patches_jar=$(find -name "revanced-patches*.jar" -print -quit)
+    local cli_jar=$(find -name "revanced-cli*.jar" -print -quit)
+    java -jar "$cli_jar" \
+                 --apk "build/$apk_name.apk" \
+                 --bundle "$patches_jar" \
+                 ${arch_map[$arch]} \
+                 --keystore ./src/ks.keystore \
+                 --out "build/$apk_name-$arch.apk"
 }
