@@ -1,5 +1,5 @@
 #!/bin/bash
-
+source ./src/--rip-lib.info
 function check_new_patch() {
     local user=$1
     local txt_name=$2
@@ -208,7 +208,6 @@ function get_ver() {
 }
 
 function patch() {
-    source ./src/--rip-lib.info
     local apk_name=$1
     local apk_out=$2
     local arch=$3
