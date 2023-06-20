@@ -286,7 +286,8 @@ function split_apk() {
     local apk_name=$1
     local patches_jar=$(find -name "revanced-patches*.jar" -print -quit)
     local cli_jar=$(find -name "revanced-cli*.jar" -print -quit)
-    for arch in "arm64-v8a" "armeabi-v7a" "x86" "x86_64" ; do
+    archs=("arm64-v8a" "armeabi-v7a" "x86" "x86_64")
+    for arch in "${archs[@]}"; do
         printf "\033[0;33mSplitting \033[0;31m\"%s\" \033[0;33m to \033[0;31m\"%s\" \033[0;33m\n" "$apk_name" "$apk_name-$arch"
         java -jar "$cli_jar" \
              --apk "build/$apk_name.apk" \
