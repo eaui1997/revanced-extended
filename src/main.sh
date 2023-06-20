@@ -280,3 +280,15 @@ function finish_patch() {
         do rm -f "$file"
     done
 }
+
+function split_apk() {
+    source ./src/--rip-lib.info
+    local apk_name=$1
+    for arch in "${!arch_map[0:4]}" ; do
+        java -jar revanced-cli*.jar \
+        --apk ./build/$apk_name.apk \
+        --${arch_map[$arch]} \
+        --keystore=ks.keystore \
+        --out ./build/$apk_name-$arch.apk
+    done
+}
