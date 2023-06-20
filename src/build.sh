@@ -29,4 +29,7 @@ finish_patch "revanced-extended"
 # Split APK
 dl_gh "j-hc" "revanced-cli" "latest"
 dl_gh "revanced" "revanced-patches" "latest"
-split_apk "youtube-revanced-extended"
+for arch in "${!arch_map[@]}"; do
+  rip_lib="${arch_map[$arch]}"
+  split_apk "youtube-revanced-extended" "$arch" "$rip_lib"
+done
