@@ -29,4 +29,4 @@ finish_patch "revanced-extended"
 # Split APK
 dl_gh "j-hc" "revanced-cli" "latest"
 dl_gh "revanced" "revanced-patches" "latest"
-for arch in "arm64-v8a armeabi-v7a x86 x86_64"; do split_apk "youtube-revanced-extended" "$arch"; done
+split_apk "youtube-revanced-extended"
