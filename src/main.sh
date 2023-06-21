@@ -281,13 +281,13 @@ function split_apk() {
     local base_apk=$(find -name "$apk_name.apk" -print -quit)
     if [[ ! -f "$base_apk" ]]; then
         printf "\033[0;31mError: APK file not found\033[0m\n"
-        exit 1
+        exit 0
     fi
     local patches_jar=$(find -name "revanced-patches*.jar" -print -quit)
     local cli_jar=$(find -name "revanced-cli*.jar" -print -quit)
     if [[ -z "$patches_jar" ]] || [[ -z "$cli_jar" ]]; then
         printf "\033[0;31mError: patches files not found\033[0m\n"
-        return 1 
+        exit 0
     fi
     archs=("arm64-v8a" "armeabi-v7a" "x86" "x86_64")
     for arch in "${archs[@]}"; do
