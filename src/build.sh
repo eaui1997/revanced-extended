@@ -1,4 +1,3 @@
-
 #!/bin/bash
 # Revanced Extended build
 source ./src/main.sh
@@ -27,5 +26,5 @@ patch "youtube-music" "youtube-music-revanced-extended"
 finish_patch "revanced-extended"
 
 # Split APK
-dl_gh "inotia00" "revanced-patches revanced-cli" "latest"
-split_apk "youtube-revanced-extended"
+#dl_gh "inotia00" "revanced-patches revanced-cli" "latest"
+#split_apk "youtube-revanced-extended"
