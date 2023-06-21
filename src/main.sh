@@ -293,7 +293,7 @@ function split_apk() {
     for arch in "${archs[@]}"; do
         printf "\033[0;33mSplitting \033[0;31m\"%s\" \033[0;33m to \033[0;31m\"%s\" \033[0;33m\n" "$apk_name" "$apk_name-$arch"
         java -jar "$cli_jar" \
-             --apk "build/$apk_name.apk" \
+             --apk "$base_apk" \
              --bundle "$patches_jar" \
              ${arch_map[$arch]} \
              --keystore ./src/ks.keystore \
