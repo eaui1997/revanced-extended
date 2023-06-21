@@ -20,7 +20,7 @@ get_patches_key "ytmusic"
 version="6.04.53"
 #get_apkmirror "youtube-music" "arm64-v8a"
 get_uptodown "youtube-music"
-patch "youtube-music" "youtube-music-revanced-extended"
+patch "youtube-music" "youtube-music-revanced-extended" "arm64-v8a"
 
 # Finish patch
 finish_patch "revanced-extended"
