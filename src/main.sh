@@ -6,19 +6,11 @@ function check_new_patch() {
     release=$(wget -qO- "https://api.github.com/repos/$user/revanced-patches/releases/latest")
     asset=$(echo "$release" | jq -r '.assets[] | select(.name | test("revanced-patches.*\\.jar$")) | .browser_download_url')
     wget -q "$asset"
-    if [[ $? -ne 0 ]]; then
-        printf "\033[0;31mFailed to download patch file from GitHub\033[0m\n"
-        exit 0
-    fi
     ls revanced-patches*.jar >> new.txt
     rm -f revanced-patches*.jar
     release=$(wget -qO- "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest")
     asset=$(echo "$release" | jq -r '.assets[] | select(.name == "'$txt_name'-version.txt") | .browser_download_url')
     wget -q "$asset"
-    if [[ $? -ne 0 ]]; then
-        printf "\033[0;31mFailed to download patch file from GitHub\033[0m\n"
-        exit 0
-    fi
     if diff -q $txt_name-version.txt new.txt >/dev/null
         then
             rm -f ./*.txt
