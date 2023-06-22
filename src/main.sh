@@ -1,25 +1,29 @@
 #!/bin/bash
 
 function check_new_patch() {
-    local user=$1
-    local txt_name=$2
-    release=$(curl -sL "https://api.github.com/repos/$user/revanced-patches/releases/latest")
+    local user="$1"
+    local txt_name="$2"
+    release=$(wget -qO- "https://api.github.com/repos/$user/revanced-patches/releases/latest")
+    if [[ $? -ne 0 ]]; then
+        printf "\033[0;31mFailed to download release info from GitHub API\033[0m\n"
+        exit 1
+    fi
     asset=$(echo "$release" | jq -r '.assets[] | select(.name | test("revanced-patches.*\\.jar$")) | .browser_download_url')
-    curl -sLO "$asset"
-    ls revanced-patches*.jar >> new.txt
-    rm -f revanced-patches*.jar
-    release=$(curl -sL "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest")
-    asset=$(echo "$release" | jq -r '.assets[] | select(.name == "'$txt_name'-version.txt") | .browser_download_url')
-    curl -sLO "$asset"
-    if diff -q $txt_name-version.txt new.txt >/dev/null
-        then
-            rm -f ./*.txt
-            printf "\033[0;31mOld patch!!! Not build\033[0m\n"
-            exit 0
-        else
-            printf "\033[0;32mBuild...\033[0m\n"
-            rm -f ./*.txt
-     fi
+    new_content=$(wget -qO- "$asset")
+    if [[ $? -ne 0 ]]; then
+        printf "\033[0;31mFailed to download patch file from GitHub\033[0m\n"
+        exit 1
+    fi
+    old_content=$(cat "$txt_name-version.txt" 2>/dev/null || echo "")
+    if [[ "$new_content" == "$old_content" ]]; then
+        printf "\033[0;31mOld patch!!! Not build\033[0m\n"
+        exit 0
+    else
+        printf "\033[0;32mBuild...\033[0m\n"
+        echo "$new_content" > "$txt_name-version.txt.new"
+        trap 'rm -f "$txt_name-version.txt.new"' EXIT
+        mv "$txt_name-version.txt.new" "$txt_name-version.txt"
+    fi
 }
 
 function dl_gh() {
