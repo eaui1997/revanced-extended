@@ -4,10 +4,6 @@ function check_new_patch() {
     local user=$1
     local txt_name=$2
     release=$(wget -qO- "https://api.github.com/repos/$user/revanced-patches/releases/latest")
-    if [[ $? -ne 0 ]]; then
-        printf "\033[0;31mFailed to download release info from GitHub API\033[0m\n"
-        exit 0
-    fi
     asset=$(echo "$release" | jq -r '.assets[] | select(.name | test("revanced-patches.*\\.jar$")) | .browser_download_url')
     wget -q "$asset"
     if [[ $? -ne 0 ]]; then
@@ -17,10 +13,6 @@ function check_new_patch() {
     ls revanced-patches*.jar >> new.txt
     rm -f revanced-patches*.jar
     release=$(wget -qO- "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest")
-    if [[ $? -ne 0 ]]; then
-        printf "\033[0;31mFailed to download release info from GitHub API\033[0m\n"
-        exit 0
-    fi
     asset=$(echo "$release" | jq -r '.assets[] | select(.name == "'$txt_name'-version.txt") | .browser_download_url')
     wget -q "$asset"
     if [[ $? -ne 0 ]]; then
