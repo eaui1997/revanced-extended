@@ -76,10 +76,12 @@ function get_patches_key() {
     for key in "${!patch_content[@]}"; do
         if [[ $key == --exclude ]]; then
             flag="exclude"
-            exclude_string+=("${patch_content[$key]}")
+            IFS=' ' read -ra exclude_values <<< "${patch_content[$key]}"
+            exclude_string+=("${exclude_values[@]}")
         elif [[ $key == --include ]]; then
             flag="include"
-            include_string+=("${patch_content[$key]}")
+            IFS=' ' read -ra include_values <<< "${patch_content[$key]}"
+            include_string+=("${include_values[@]}")
         elif [[ -n $key && $key != --* ]]; then
             if [[ $flag == "exclude" ]]; then
                 exclude_string+=("$key")
@@ -100,6 +102,7 @@ function get_patches_key() {
     done
     return 0
 }
+
 
 function req() {  
     wget -nv -O "$2" -U "Mozilla/5.0 (X11; Linux x86_64; rv:111.0) Gecko/20100101 Firefox/111.0" "$1" 
