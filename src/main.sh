@@ -60,33 +60,24 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    declare -A patch_content
-    while read -r line; do
-        line="${line#"${line%%[![:space:]]*}"}"
-        line="${line%"${line##*[![:space:]]}"}"
-        key="${line%% *}"
-        value="${line#* }"
-        patch_content["$key"]="$value"
-    done < "patches/$patch_file"
+    patch_content=($(cat patches/$patch_file))
     exclude_string=()
     include_string=()
     exclude_patches=""
     include_patches=""
     flag=""
-    for key in "${!patch_content[@]}"; do
-        if [[ $key == --exclude ]]; then
+    for line in "${patch_content[@]}"; do
+        if [[ $line == --exclude* ]]; then
             flag="exclude"
-            IFS=' ' read -ra exclude_values <<< "${patch_content[$key]}"
-            exclude_string+=("${exclude_values[@]}")
-        elif [[ $key == --include ]]; then
+            exclude_string+=(${line#--exclude})
+        elif [[ $line == --include* ]]; then
             flag="include"
-            IFS=' ' read -ra include_values <<< "${patch_content[$key]}"
-            include_string+=("${include_values[@]}")
-        elif [[ -n $key && $key != --* ]]; then
+            include_string+=(${line#--include})
+        elif [[ -n $line && $line != --* ]]; then
             if [[ $flag == "exclude" ]]; then
-                exclude_string+=("$key")
+                exclude_string+=($line)
             elif [[ $flag == "include" ]]; then
-                include_string+=("$key")
+                include_string+=($line)
             fi
         fi
     done
@@ -102,7 +93,6 @@ function get_patches_key() {
     done
     return 0
 }
-
 
 function req() {  
     wget -nv -O "$2" -U "Mozilla/5.0 (X11; Linux x86_64; rv:111.0) Gecko/20100101 Firefox/111.0" "$1" 
