@@ -60,24 +60,31 @@ function dl_gh() {
 
 function get_patches_key() {
     local patch_file="$1"
-    patch_content=($(cat patches/$patch_file))
+    declare -A patch_content
+    while read -r line; do
+        line="${line#"${line%%[![:space:]]*}"}"
+        line="${line%"${line##*[![:space:]]}"}"
+        key="${line%% *}"
+        value="${line#* }"
+        patch_content["$key"]="$value"
+    done < "patches/$patch_file"
     exclude_string=()
     include_string=()
     exclude_patches=""
     include_patches=""
     flag=""
-    for line in "${patch_content[@]}"; do
-        if [[ $line == --exclude* ]]; then
+    for key in "${!patch_content[@]}"; do
+        if [[ $key == --exclude ]]; then
             flag="exclude"
-            exclude_string+=(${line#--exclude})
-        elif [[ $line == --include* ]]; then
+            exclude_string+=("${patch_content[$key]}")
+        elif [[ $key == --include ]]; then
             flag="include"
-            include_string+=(${line#--include})
-        elif [[ -n $line && $line != --* ]]; then
+            include_string+=("${patch_content[$key]}")
+        elif [[ -n $key && $key != --* ]]; then
             if [[ $flag == "exclude" ]]; then
-                exclude_string+=($line)
+                exclude_string+=("$key")
             elif [[ $flag == "include" ]]; then
-                include_string+=($line)
+                include_string+=("$key")
             fi
         fi
     done
