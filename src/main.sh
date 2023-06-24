@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 function check_new_patch() {
@@ -254,7 +255,7 @@ function patch() {
                  ${include_patches} \
                  ${arch_map[$arch]} \
                  --keystore ./src/ks.keystore \
-                 --out "build/$apk_out.apk"
+                 --out "build/$apk_out-$arch.apk"
         fi
     fi
     printf "\033[0;32mPatch \033[0;31m\"%s\" \033[0;32mis finished!\033[0m\n" "$apk_out"
