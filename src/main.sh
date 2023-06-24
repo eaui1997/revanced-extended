@@ -131,7 +131,7 @@ function get_apkmirror() {
     fi
     local app_category=$(echo ${apps[$app_name]} | jq -r '.category_link')
     local app_link=$(echo ${apps[$app_name]} | jq -r '.app_link')  
-    printf "\033[1;33mDownloading \033[0;31m\"%s\"" "$app_name"
+    printf "\033[1;33mDownloading \033[0;31m\"%s\"\033[0m\n" "$(printf '%s' "$app_name" | tr '[:lower:]' '[:upper:]')"
     if [[ -n $arch ]]; then
         printf " (%s)" "$arch"
     fi
@@ -175,7 +175,7 @@ function get_uptodown() {
         exit 1 
      fi 
      local applink=$(echo ${apps[$app_name]} | jq -r '.app_link') 
-     printf "\033[1;33mDownloading \033[0;31m\"%s\"\033[0m\n" "$app_name" 
+     printf "\033[1;33mDownloading \033[0;31m\"%s\"\033[0m\n" "$(printf '%s' "$app_name" | tr '[:lower:]' '[:upper:]')"
      local out_name=$(printf '%s' "$app_name" | tr '.' '_' | tr '[:upper:]' '[:lower:]' && printf '%s' ".apk") 
      local uptwod_resp=$(get_uptodown_resp "$applink") 
      local available_versions=($(get_uptodown_vers "$uptwod_resp")) 
