@@ -49,4 +49,6 @@ declare -A apps=(
   ["vsco"]='{"app_link":"https://vsco-cam.en.uptodown.com/android"}' 
   # Ticktick to do list
   ["ticktick"]='{"app_link":"https://ticktick.en.uptodown.com/android"}' 
+  # Relay for Reddit 
+  ["relay"]='{"app_link":"https://relay.en.uptodown.com/android"}'
 )
