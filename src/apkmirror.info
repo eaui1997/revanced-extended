@@ -46,4 +46,6 @@ declare -A apps=(
   ["ticktick"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=ticktick-to-do-list-with-reminder-day-planner","app_link":"https://www.apkmirror.com/apk/appest-inc/ticktick-to-do-list-with-reminder-day-planner/ticktick-to-do-list-with-reminder-day-planner"}'
   # Tasker
   ["tasker"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=tasker","app_link":"https://www.apkmirror.com/apk/joaomgcd/tasker/tasker"}'
+    # Relay for Reddit 
+  ["relay"]='{"category_link":"https://www.apkmirror.com/uploads/?appcategory=relay-for-reddit-2","app_link":"https://www.apkmirror.com/apk/dbrady/relay-for-reddit-2/relay-for-reddit-2/"}'
 )
