@@ -1,0 +1,131 @@
+<!DOCKTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      :root {
+        --bg-color: #f0f0f0;
+        --text-color: #333;
+        --link-color: #007bff;
+        --border-color: #ccc;
+        --button-color: #007bff;
+        --button-text: white;
+      }
+      [data-theme="dark"] {
+        --bg-color: #333;
+        --text-color: #f0f0f0;
+        --link-color: #66ccff;
+        --border-color: #666;
+        --button-color: #66ccff;
+        --button-text: black;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+      }
+      h1 {
+        text-align: center;
+        animation: fade-in 1s ease-in-out;
+      }
+      h2 {
+        color: var(--link-color);
+        text-align: center;
+        animation: fade-in 1s ease-in-out 0.5s both;
+      }
+      p {
+        margin: 10px auto;
+        max-width: 800px;
+        text-align: justify;
+        animation: fade-in 1s ease-in-out 1s both;
+      }
+      ul {
+        list-style: none;
+        margin: 0 auto;
+        max-width: 600px;
+      }
+      li {
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+      }
+      a {
+        display: block;
+        text-decoration: none;
+        color: var(--link-color);
+        flex-grow: 1;
+      }
+      button {
+        display : inline-block; 
+         width : 80px; 
+         height : 40px; 
+         padding : 5px 10px; 
+         border : none; 
+         border-radius : 5px; 
+         background-color : var(--button-color); 
+         color : var(--button-text); 
+         cursor : pointer
+       } 
+       @media (min-width : 768px) {ul {max-width : 800px; display : grid; grid-template-columns : repeat(2, 1fr); grid-gap : 20px; animation-name : slide-in-left, slide-in-right; animation-duration : .5s; animation-timing-function:cubic-bezier(.25,.46,.45,.94); animation-fill-mode:both} ul li:nth-child(odd) {animation-name : slide-in-left} ul li:nth-child(even) {animation-name : slide-in-right}} @keyframes slide-in-left {from {transform : translateX(-100%)} to {transform : translateX(0)}} @keyframes slide-in-right {from {transform : translateX(100%)} to {transform : translateX(0)}} @keyframes fade-in {from {opacity : 0} to {opacity : 1}}
+      footer {
+         margin-top : 20px; 
+         padding-top : 10px; 
+         border-top : 1px solid var(--border-color); 
+         text-align : center
+       } 
+       .toggle-container {display:none}
+    </style>
+    <title>Revanced & Revanced Extended</title>
+  </head>
+  <body>
+    <h1>Revanced & Revanced Extended</h1>
+    <div class="toggle-container">
+     <input type="checkbox" id="theme-toggle">
+     <label for="theme-toggle">
+      <span>Light Mode</span>
+      <span>Dark Mode</span>
+     </label>
+    </div>
+    <h2>🌟 Welcome to the my download Revanced and Revanced Extended site🌟</h2>
+    <p>Revanced is a modded version of YouTube that allows you to use premium features without subscribing to YouTube Premium, such as blocking ads, playing in the background, downloading videos and more. Revanced Extended is an extended version of Revanced that allows you to use additional features such as AMOLED mode, global dark mode and more.</p>
+    <p>To use Revanced or Revanced Extended, you need to install mMicroG, a modded version of MicroG that allows you to log in to your Google account on YouTube. You can download mMicroG from the list below.</p>
+    <p>If you want to patch more apps, you can visit the my GitHub repository here:</p>
+    <p><a href="https://github.com/luxysiv/revanced-nonroot">luxysiv/revanced-nonroot</a></p>
+    <ul id="file-list"></ul>
+    <script>
+    const themeToggle = document.getElementById('theme-toggle');
+     themeToggle.addEventListener('change', function() {
+       document.documentElement.toggleAttribute('data-theme', 'dark');
+     });
+    const apiUrl = `https://api.github.com/repos/manhduonghn/revanced-extended/releases/latest`;
+    fetch(apiUrl)
+       .then(response => response.json())
+       .then(data => {
+        const fileList = document.getElementById('file-list');
+         data.assets.forEach(asset => {
+          if (!asset.name.endsWith('.txt')) {
+            const listItem = document.createElement('li');
+            const downloadLink = document.createElement('a');
+            downloadLink.href = asset.browser_download_url;
+            downloadLink.textContent = asset.name + ' (' + (asset.size / 1024 / 1024).toFixed(2) + ' MB)';
+            const downloadButton = document.createElement('button');
+            downloadButton.textContent = 'Download';
+            downloadButton.onclick = function() {
+              window.open(downloadLink.href);
+            };
+            listItem.appendChild(downloadLink);
+            listItem.appendChild(downloadButton);
+            fileList.appendChild(listItem);
+           }
+        });
+      });
+    </script>
+    <footer>
+      <p style="font-weight: bold; font-style: italic; text-align: center;">Created by<a href="https://github.com/luxysiv">Luxysiv</a></p>
+    </footer>
+  </body>
+</html>
