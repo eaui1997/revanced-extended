@@ -13,7 +13,7 @@ get_patches_key "youtube"
 get_ver "youtube-rve"
 get_apkmirror "youtube"
 #get_uptodown "youtube"
-patch "youtube" "youtube-revanced-extended-v$version" "arm64-v8a"
+patch "youtube" "youtube-revanced-extended-v$version"
 # Patch YouTube Music Extended 
 get_patches_key "ytmusic"
 version="6.04.53"
