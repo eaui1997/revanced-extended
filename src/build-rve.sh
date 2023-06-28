@@ -1,6 +1,6 @@
 #!/bin/bash
 # Revanced Extended build
-source ./src/main.sh
+source ./src/tools.sh
 
 # Check patch
 check_new_patch "inotia00" "revanced-extended"
