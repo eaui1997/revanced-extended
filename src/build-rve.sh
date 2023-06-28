@@ -25,5 +25,5 @@ patch "youtube-music" "youtube-music-revanced-extended-v$version" "arm64-v8a"
 finish_patch "revanced-extended"
 
 # Split APK
-#dl_gh "inotia00" "revanced-patches revanced-cli" "latest"
-#split_apk "youtube-revanced-extended"
+dl_gh "inotia00" "revanced-patches revanced-cli" "latest"
+split_apk "youtube-revanced-extended"
