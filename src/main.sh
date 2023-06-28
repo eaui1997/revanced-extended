@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 function check_new_patch() {
@@ -279,7 +278,7 @@ function finish_patch() {
 function split_apk() {
     source ./src/--rip-lib.info
     local apk_name=$1
-    local base_apk=$(find -name "$apk_name.apk" -print -quit)
+    local base_apk=$(find -name "$apk_name*.apk" -print -quit)
     if [[ ! -f "$base_apk" ]]; then
         printf "\033[0;31mError: APK file not found\033[0m\n"
         exit 0
