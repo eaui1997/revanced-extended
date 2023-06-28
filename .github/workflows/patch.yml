@@ -19,7 +19,7 @@ jobs:
           java-version: '17'
       
       - name: Patch Revanced Extended 
-        run: bash ./src/build.sh  
+        run: bash ./src/build-rve.sh  
         
       - name: Generate release info
         run: | 
