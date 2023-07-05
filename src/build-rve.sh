@@ -34,4 +34,3 @@ finish_patch "revanced-extended"
 # Split APK
 dl_gh "inotia00" "revanced-patches revanced-cli" "latest"
 split_apk "youtube-revanced-extended"
-split_apk "reddit-revanced-extended"
