@@ -1,4 +1,6 @@
 --exclude
 custom-branding-icon-revancify-blue
-custom-branding-name 
+custom-branding-youtube-name 
 hide-mix-playlists
+--include
+add-splash-animation
