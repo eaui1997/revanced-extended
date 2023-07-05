@@ -22,9 +22,16 @@ version="6.04.53"
 get_uptodown "youtube-music"
 patch "youtube-music" "youtube-music-revanced-extended-v$version" "arm64-v8a"
 
+#Reddit
+get_patches_key "reddit"
+get_apkmirror "reddit"
+#get_uptodown "reddit"
+patch "reddit" "reddit-revanced-extended-v$version"
+
 # Finish patch
 finish_patch "revanced-extended"
 
 # Split APK
 dl_gh "inotia00" "revanced-patches revanced-cli" "latest"
 split_apk "youtube-revanced-extended"
+split_apk "reddit-revanced-extended"
