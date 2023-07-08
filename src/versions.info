@@ -4,8 +4,6 @@ declare -A versions=(
   ["youtube-rv"]='{"patch":"video-ads","package":"com.google.android.youtube"}'
   # Youtube Revanced Extended 
   ["youtube-rve"]='{"patch":"hide-general-ads","package":"com.google.android.youtube"}'
-  # Youtube Music Revanced
-  ["youtube-music-rv"]='{"patch":"hide-get-premium","package":"com.google.android.apps.youtube.music"}'
   # Twitch 
   ["twitch"]='{"patch":"block-video-ads","package":"tv.twitch.android.app"}'
   # Twitter 
@@ -16,4 +14,6 @@ declare -A versions=(
   ["meme-generator"]='{"patch":"pro-unlock","package":"com.zombodroid.MemeGenerator"}'
   # My Expenses 
   ["expenses"]='{"patch":"pro-unlock","package":"org.totschnig.myexpenses"}'
+  # Reddit Revanced Extended 
+  ["reddit-revanced-extended"]='{"patch":"hide-discover-button","package":"com.reddit.frontpage"}'
 )
