@@ -23,6 +23,7 @@ patch "youtube-music" "youtube-music-revanced-extended-v$version" "arm64-v8a"
 
 #Reddit
 get_patches_key "reddit"
+get_ver "reddit-revanced-extended"
 get_apkmirror "reddit"
 #get_uptodown "reddit"
 patch "reddit" "reddit-revanced-extended-v$version"
