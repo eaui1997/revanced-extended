@@ -14,6 +14,4 @@ declare -A versions=(
   ["meme-generator"]='{"patch":"Unlock pro","package":"com.zombodroid.MemeGenerator"}'
   # My Expenses 
   ["expenses"]='{"patch":"Unlock pro","package":"org.totschnig.myexpenses"}'
-  # Reddit Revanced Extended 
-  ["reddit-revanced-extended"]='{"patch":"Hide discover button","package":"com.reddit.frontpage"}'
 )
