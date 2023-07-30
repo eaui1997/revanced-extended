@@ -95,24 +95,24 @@ function get_patches_key() {
 }
 
 function dl_htmlq() {
-	req "https://github.com/mgdm/htmlq/releases/latest/download/htmlq-x86_64-linux.tar.gz" "./htmlq.tar.gz"
-	tar -xf "./htmlq.tar.gz" -C "./"
-	rm "./htmlq.tar.gz"
-	HTMLQ="./htmlq"
+    req "https://github.com/mgdm/htmlq/releases/latest/download/htmlq-x86_64-linux.tar.gz" "./htmlq.tar.gz"
+    tar -xf "./htmlq.tar.gz" -C "./"
+    rm "./htmlq.tar.gz"
+    HTMLQ="./htmlq"
 }
 
 function _req() {
-	if [ "$2" = - ]; then
-		wget -nv -O "$2" --header="$3" "$1"
-	else
-		local dlp
-		dlp="$(dirname "$2")/$(basename "$2")"
-		if [ -f "$dlp" ]; then
-			while [ -f "$dlp" ]; do sleep 1; done
-			return
-		fi
-		wget -nv -O "$dlp" --header="$3" "$1" || return 1
+    if [ "$2" = - ]; then
+	wget -nv -O "$2" --header="$3" "$1"
+    else
+	local dlp
+	dlp="$(dirname "$2")/$(basename "$2")"
+	if [ -f "$dlp" ]; then
+		while [ -f "$dlp" ]; do sleep 1; done
+		return
 	fi
+	wget -nv -O "$dlp" --header="$3" "$1" || return 1
+    fi
 }
 function req() { 
     _req "$1" "$2" "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:108.0) Gecko/20100101 Firefox/108.0"
@@ -131,18 +131,18 @@ function get_largest_ver() {
 }
 
 function dl_apkmirror() {
-	local url=$1 regexp=$2 output=$3 resp
-	url="https://www.apkmirror.com$(req "$url" - | tr '\n' ' ' | sed -n "s/href=\"/@/g; s;.*${regexp}.*;\1;p")"
-	echo "$url"
+    local url=$1 regexp=$2 output=$3 resp
+    url="https://www.apkmirror.com$(req "$url" - | tr '\n' ' ' | sed -n "s/href=\"/@/g; s;.*${regexp}.*;\1;p")"
+    echo "$url"
+    url=$(req "$url" - | $HTMLQ --base https://www.apkmirror.com --attribute href "a.accent_bg.btn")
+    resp=$(req "$url" - | $HTMLQ --base https://www.apkmirror.com --attribute href "span > a[rel = nofollow]")
+    if [[ -z $resp ]]; then
 	url=$(req "$url" - | $HTMLQ --base https://www.apkmirror.com --attribute href "a.accent_bg.btn")
-	resp=$(req "$url" - | $HTMLQ --base https://www.apkmirror.com --attribute href "span > a[rel = nofollow]")
-	if [[ -z $resp ]]; then
-		url=$(req "$url" - | $HTMLQ --base https://www.apkmirror.com --attribute href "a.accent_bg.btn")
-		url=$(req "$url" - | $HTMLQ --base https://www.apkmirror.com --attribute href "span > a[rel = nofollow]")
-	else
-		url=$(req "$url" - | $HTMLQ --base https://www.apkmirror.com --attribute href "span > a[rel = nofollow]")
-	fi
-	req "$url" "$output"
+	url=$(req "$url" - | $HTMLQ --base https://www.apkmirror.com --attribute href "span > a[rel = nofollow]")
+    else
+	url=$(req "$url" - | $HTMLQ --base https://www.apkmirror.com --attribute href "span > a[rel = nofollow]")
+    fi
+    req "$url" "$output"
 }
 
 function get_apkmirror() {
@@ -174,39 +174,6 @@ function get_apkmirror() {
     local dl_url=$(dl_apkmirror "$app_link-${version//./-}-release/" \
                                 "${url_regexp_map[$arch]}" \
                                 "$base_apk")
-}
-
-function get_uptodown_resp() {
-    req "${1}/versions" -
-}
-
-function get_uptodown_vers() {
-    sed -n 's;.*version">\(.*\)</span>$;\1;p' <<< "$1"
-}
-
-function dl_uptodown() {
-    local uptwod_resp=$1 version=$2 output=$3
-    local url
-    url=$(grep -F "${version}</span>" -B 2 <<< "$uptwod_resp" | head -1 | sed -n 's;.*data-url="\(.*\)".*;\1;p') || return 1
-    url=$(req "$url" - | sed -n 's;.*data-url="\(.*\)".*;\1;p') || return 1
-    req "$url" "$output"
-}
-
-function get_uptodown() {
-     source ./src/uptodown.info
-     local app_name=$1  
-     if [[ -z ${apps[$app_name]} ]]; then 
-        printf "\033[0;31mInvalid app name\033[0m\n" 
-        exit 1 
-     fi 
-     local applink=$(echo ${apps[$app_name]} | jq -r '.app_link') 
-     printf "\033[1;33mDownloading \033[0;31m\"%s\"\033[0m\n" "$app_name" 
-     local out_name=$(printf '%s' "$app_name" | tr '.' '_' | tr '[:upper:]' '[:lower:]' && printf '%s' ".apk") 
-     local uptwod_resp=$(get_uptodown_resp "$applink") 
-     local available_versions=($(get_uptodown_vers "$uptwod_resp")) 
-     export version=${version:-${available_versions[1]}} 
-     printf "\033[1;33mChoosing version \033[0;36m'%s'\033[0m\n" "$version" 
-     dl_uptodown "$uptwod_resp" "$version" "$out_name" 
 }
 
 function get_ver() {
