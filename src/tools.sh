@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 function check_new_patch() {
@@ -95,9 +94,29 @@ function get_patches_key() {
     return 0
 }
 
-function req() {  
-    wget -nv -O "$2" -U "Mozilla/5.0 (X11; Linux x86_64; rv:111.0) Gecko/20100101 Firefox/111.0" "$1" 
-} 
+function dl_htmlq() {
+	req "https://github.com/mgdm/htmlq/releases/latest/download/htmlq-x86_64-linux.tar.gz" "./htmlq.tar.gz"
+	tar -xf "./htmlq.tar.gz" -C "./"
+	rm "./htmlq.tar.gz"
+	HTMLQ="./htmlq"
+}
+
+function _req() {
+	if [ "$2" = - ]; then
+		wget -nv -O "$2" --header="$3" "$1"
+	else
+		local dlp
+		dlp="$(dirname "$2")/$(basename "$2")"
+		if [ -f "$dlp" ]; then
+			while [ -f "$dlp" ]; do sleep 1; done
+			return
+		fi
+		wget -nv -O "$dlp" --header="$3" "$1" || return 1
+	fi
+}
+function req() { 
+    _req "$1" "$2" "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:108.0) Gecko/20100101 Firefox/108.0"
+}
 
 function get_apkmirror_vers() {  
     req "$1" - | sed -n 's;.*Version:</span><span class="infoSlide-value">\(.*\) </span>.*;\1;p' 
@@ -112,12 +131,18 @@ function get_largest_ver() {
 }
 
 function dl_apkmirror() {
-    local url=$1 regexp=$2 output=$3
-    url="https://www.apkmirror.com$(req "$url" - | tr '\n' ' ' | sed -n "s/href=\"/@/g; s;.*${regexp}.*;\1;p")"
-    echo "$url"
-    url="https://www.apkmirror.com$(req "$url" - | tr '\n' ' ' | sed -n 's;.*href="\(.*key=[^"]*\)">.*;\1;p')"
-    url="https://www.apkmirror.com$(req "$url" - | tr '\n' ' ' | sed -n 's;.*href="\(.*key=[^"]*\)">.*;\1;p')"
-    req "$url" "$output"
+	local url=$1 regexp=$2 output=$3 resp
+	url="https://www.apkmirror.com$(req "$url" - | tr '\n' ' ' | sed -n "s/href=\"/@/g; s;.*${regexp}.*;\1;p")"
+	echo "$url"
+	url=$(req "$url" - | $HTMLQ --base https://www.apkmirror.com --attribute href "a.accent_bg.btn")
+	resp=$(req "$url" - | $HTMLQ --base https://www.apkmirror.com --attribute href "span > a[rel = nofollow]")
+	if [[ -z $resp ]]; then
+		url=$(req "$url" - | $HTMLQ --base https://www.apkmirror.com --attribute href "a.accent_bg.btn")
+		url=$(req "$url" - | $HTMLQ --base https://www.apkmirror.com --attribute href "span > a[rel = nofollow]")
+	else
+		url=$(req "$url" - | $HTMLQ --base https://www.apkmirror.com --attribute href "span > a[rel = nofollow]")
+	fi
+	req "$url" "$output"
 }
 
 function get_apkmirror() {
@@ -301,5 +326,4 @@ function split_apk() {
              --out "build/$apk_name-$arch.apk"
         printf "\033[0;32mSplit \033[0;31m\"%s\" \033[0;32m is finished.\033[0m\n" "$apk_name-$arch"
     done
-    rm -f ./"$base_apk"
 }
