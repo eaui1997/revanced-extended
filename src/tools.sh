@@ -233,7 +233,6 @@ function patch() {
              ${exclude_patches} \
              ${include_patches} \
              --keystore ./src/ks.keystore \
-	     --options ./src/options.toml \
              --out "build/$apk_out.apk"
     else
         if [[ ! ${arch_map[$arch]+_} ]]; then
