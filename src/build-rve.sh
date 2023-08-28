@@ -22,11 +22,6 @@ get_patches_key "ytmusic"
 get_apkmirror "youtube-music" "arm64-v8a"
 patch "youtube-music" "youtube-music-revanced-extended-v$version" "arm64-v8a"
 
-#Reddit
-get_patches_key "reddit"
-get_apkmirror "reddit"
-patch "reddit" "reddit-revanced-extended-v$version"
-
 # Finish patch
 finish_patch "revanced-extended"
 
