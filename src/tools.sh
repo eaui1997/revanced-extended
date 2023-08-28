@@ -293,4 +293,5 @@ function split_apk() {
              --out "build/$apk_name-$arch.apk"
         printf "\033[0;32mSplit \033[0;31m\"%s\" \033[0;32m is finished.\033[0m\n" "$apk_name-$arch"
     done
+    rm "$base_apk"
 }
