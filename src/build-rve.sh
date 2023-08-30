@@ -19,7 +19,3 @@ patch "youtube" "youtube-revanced-extended-v$version"
 
 # Finish patch
 finish_patch "revanced-extended"
-
-# Split APK
-dl_gh "inotia00" "revanced-patches revanced-cli" "latest"
-split_apk "youtube-revanced-extended"
